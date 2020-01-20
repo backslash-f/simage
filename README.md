@@ -1,2 +1,3 @@
-# simage
-Multiplatform Core Graphics wrapper
+# SImage
+
+A description of this package.
