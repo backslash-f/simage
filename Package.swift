@@ -9,11 +9,13 @@ let package = Package(
             name: "SImage",
             targets: ["SImage"]),
     ],
-    dependencies: [],
+    dependencies: [
+        .package(url: "https://github.com/backslash-f/Worker", from: "1.0.0")
+    ],
     targets: [
         .target(
             name: "SImage",
-            dependencies: []),
+            dependencies: ["Worker"]),
         .testTarget(
             name: "SImageTests",
             dependencies: ["SImage"]),

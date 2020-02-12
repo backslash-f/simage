@@ -3,7 +3,7 @@ import XCTest
 
 final class SImageTests: XCTestCase {
     func testExample() {
-        XCTAssertEqual(SgsImage().text, "Hello, World!")
+        XCTAssertEqual(SImage().text, "Hello, World!")
     }
 
     static var allTests = [

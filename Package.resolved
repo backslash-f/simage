@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "Worker",
+        "repositoryURL": "https://github.com/backslash-f/Worker",
+        "state": {
+          "branch": null,
+          "revision": "98155daa7bf69ea1d0f5699c0da267d8f79424a8",
+          "version": "1.0.1"
+        }
+      }
+    ]
+  },
+  "version": 1
+}
