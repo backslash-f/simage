@@ -40,11 +40,16 @@ public extension SImage {
 
     /// Creates a `CGImage` from the given `URL`.
     ///
+    /// This function must be called from the main thread (to avoid possible performance issues).
+    ///
     /// - Parameter url: `URL` where an image resided.
     /// - Throws: `SImageError.cannotCreateImage` in case `CGImageSourceCreateImageAtIndex` returns `nil`.
+    /// `SImageError.cannotBeCalledFromMainThread` in case this function is running in the main thread.
     /// - Returns: `CGImage` created from the given `URL`.
     func createImage(from url: URL) throws -> CGImage {
-        assert(Thread.isMainThread, "This function must be called from a background thread.")
+        guard !Thread.isMainThread else {
+            throw SImageError.cannotBeCalledFromMainThread
+        }
         guard let source = CGImageSourceCreateWithURL(url as CFURL, nil),
             let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else {
                 throw SImageError.cannotCreateImage(from: url)
