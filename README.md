@@ -6,4 +6,4 @@
 # SImage
 A wrapper around [`Core Graphics`](https://developer.apple.com/documentation/coregraphics) that provides functionalities such as image combination, image rotation, etc.
 
-Because it relies on `Core Graphics`, it's already multi-platform by default, supporting iOS (+ iPadOS), macOS, Mac Catalyst, tvOS and watchOS.
+Because it relies on `Core Graphics`, it's already multi-platform, supporting iOS (+ iPadOS), macOS, Mac Catalyst, tvOS and watchOS.
