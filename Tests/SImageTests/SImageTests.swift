@@ -10,7 +10,7 @@ final class SImageTests: XCTestCase {
     static var allTests = [
         ("testCreateCGImage", testCreateCGImage),
         ("testCreateCGImageFromMainThread", testCreateCGImageFromMainThread),
-        ("testCombiningImagesProducesExpectedOutput", testCombiningImagesProducesExpectedOutput)
+        ("testCombineImages", testCombineImages)
     ]
 
     // MARK: - Private Properties
@@ -18,12 +18,6 @@ final class SImageTests: XCTestCase {
     private var resourcesPath: URL {
         let currentFileURL = URL(fileURLWithPath: "\(#file)", isDirectory: false)
         return currentFileURL.deletingLastPathComponent().appendingPathComponent("Resources")
-    }
-    private var resultImageURL: URL {
-        self.urlForImage(named: self.resultImagePrefix)
-    }
-    private var expectedImageURL: URL {
-        self.urlForImage(named: self.resultImageExpectedPrefix)
     }
     private let simage = SImage()
     private let imagePrefix = "image_"
@@ -87,45 +81,21 @@ extension SImageTests {
 
     /// Tests that images are combined as expected using the default `SImageSettings` (e.g.: target orientation ==
     /// CGImagePropertyOrientation = .up).
-    func testCombiningImagesProducesExpectedOutput() {
-        let matchesOutputExpectation = expectation(description: "Combined images output matches expected one.")
-        let sourceURLs = imageSourceURLs()
+    func testCombineImages() {
+        let imageURLs = imageSourceURLs()
+        let combineExpectation = expectation(description: "Images combined successfully.")
 
-        simage.combineImages(source: sourceURLs) { [weak self] image, error in
-            guard error == nil else {
-                XCTFail("Couldn't combine images. Error: \(String(describing: error))")
-                return
-            }
-            guard let combinedImages = image else {
-                XCTFail("Couldn't combine images.")
-                return
-            }
-            guard self?.persistResultImage(combinedImages) == true else {
-                XCTFail("Couldn't persist the combined images.")
-                return
-            }
-
-            Worker.doBackgroundWork { [weak self] in
-                guard let self = self else {
-                    XCTFail("Self is no more...")
+        simage.combineImages(source: imageURLs) { image, error in
+            if let error = error {
+                XCTFail("Could not combine the images. Error: \(error.localizedDescription).")
+            } else if let image = image {
+                guard image.height == 1800, image.width == 10800 else {
+                    XCTFail("Invalid image dimensions. Height: \(image.height)), Width: \(image.width)).")
                     return
                 }
-                guard let resultImageAndData = self.imageAndDataFrom(url: self.resultImageURL),
-                    let expectedImageAndData = self.imageAndDataFrom(url: self.expectedImageURL) else {
-                        XCTFail("Couldn't get images and data.")
-                        return
-                }
-                let resultSize = CGSize(width: resultImageAndData.image.width, height: resultImageAndData.image.height)
-                let expectedSize = CGSize(width: expectedImageAndData.image.width, height: expectedImageAndData.image.height)
-                guard resultSize == expectedSize else {
-                    XCTFail("The result image size is not equal to the expected image size.")
-                    return
-                }
-                guard resultImageAndData.data == expectedImageAndData.data else {
-                    XCTFail("The result image is not equal to the expected image.")
-                    return
-                }
-                matchesOutputExpectation.fulfill()
+                combineExpectation.fulfill()
+            } else {
+                XCTFail("Could not combine the images")
             }
         }
         waitForExpectations(timeout: 5, handler: nil)
@@ -151,29 +121,5 @@ private extension SImageTests {
             sourceURLs.append(imageURL)
         }
         return sourceURLs
-    }
-
-    /// Retrieves the URL for a specific image, e.g. "result_image". Suffix defaults to ".jpg".
-    func urlForImage(named: String, prefix: String = jpgSuffix) -> URL {
-        resourcesPath.appendingPathComponent(named + prefix, isDirectory: false)
-    }
-
-    func persistResultImage(_ cgImage: CGImage, suffix: String = jpgSuffix) -> Bool {
-        let filename = resultImagePrefix + suffix
-        let resultImageURL = self.resourcesPath.appendingPathComponent(filename, isDirectory: false)
-        guard let destination = CGImageDestinationCreateWithURL(resultImageURL as CFURL, kUTTypeJPEG, 1, nil) else {
-            return false
-        }
-        CGImageDestinationAddImage(destination, cgImage, nil)
-        return CGImageDestinationFinalize(destination)
-    }
-
-    typealias ImageAndData = (image: CGImage, data: CFData)
-    func imageAndDataFrom(url: URL) -> ImageAndData? {
-        guard let cgImage = try? simage.createImage(from: url),
-            let cfData = cgImage.dataProvider?.data else {
-                return nil
-        }
-        return (cgImage, cfData)
     }
 }
