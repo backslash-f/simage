@@ -32,7 +32,7 @@ extension SImageTests {
         let description = "SImage.createImage(from:) must fail on the main thread."
         let mainThreadErrorExpectation = expectation(description: description)
 
-        DispatchQueue.main.async {
+        Worker.doMainThreadWork {
             do {
                 _ = try SImage().createImage(from: imageURL)
             } catch {
@@ -49,7 +49,7 @@ extension SImageTests {
     func testCreateCGImage() {
         let imageURL = randomImageURL()
         let imageCreationExpectation = expectation(description: "Image created successfully.")
-        
+
         Worker.doBackgroundWork {
             do {
                 let cgImage = try SImage().createImage(from: imageURL)
@@ -89,6 +89,49 @@ extension SImageTests {
         }
         waitForExpectations(timeout: 5, handler: nil)
     }
+
+    func testCombiningImagesProducesExpectedOutput() {
+        let equalImagesExpectation = expectation(description: "Images are equal.")
+        let sourceURLs = imageSourceURLs()
+        let simage = SImage()
+
+        simage.combineImages(source: sourceURLs) { image, error in
+            guard error == nil else {
+                XCTFail("Couldn't combine images. Error: \(String(describing: error)).")
+                return
+            }
+            guard let combinedImages = image else {
+                XCTFail("Couldn't combine images.")
+                return
+            }
+            guard let combinedImagesData = combinedImages.dataProvider?.data else {
+                XCTFail("Couldn't get combined image data.")
+                return
+            }
+
+            Worker.doBackgroundWork { [weak self] in
+                guard let self = self else {
+                    XCTFail("Self is no more...")
+                    return
+                }
+                let expectedImageURL = self.urlForImage(named: "result_image")
+                guard let expectedImage = try? simage.createImage(from: expectedImageURL) else {
+                    XCTFail("Couldn't create the expected image from URL: \(expectedImageURL).")
+                    return
+                }
+                guard let expectedImageData = expectedImage.dataProvider?.data else {
+                    XCTFail("Couldn't get expected image data.")
+                    return
+                }
+                guard combinedImagesData == expectedImageData else {
+                    XCTFail("The result image is not equal to the expected image.")
+                    return
+                }
+                equalImagesExpectation.fulfill()
+            }
+        }
+        waitForExpectations(timeout: 5, handler: nil)
+    }
 }
 
 // MARK: - Private
@@ -110,5 +153,10 @@ private extension SImageTests {
             sourceURLs.append(imageURL)
         }
         return sourceURLs
+    }
+
+    /// Retrieves the URL for a specific image, e.g. "result_image". Suffix defaults to ".jpg".
+    func urlForImage(named: String, prefix: String = ".jpg") -> URL {
+        resourcesPath.appendingPathComponent(named, isDirectory: false)
     }
 }
