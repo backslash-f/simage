@@ -4,7 +4,7 @@
 [![license](https://img.shields.io/badge/license-mit-brightgreen.svg)](https://en.wikipedia.org/wiki/MIT_License)
 
 # SImage
-A wrapper around [`Core Graphics (CG)`](https://developer.apple.com/documentation/coregraphics) that provides functionalities such as combining images while adjusting their orientation. There's an example below.
+A wrapper around [`Core Graphics (CG)`](https://developer.apple.com/documentation/coregraphics) that provides functionalities such as combining images while adjusting their orientation. See the example below.
 
 Because it relies on CG, it's already multi-platform. It supports iOS (+ iPadOS), macOS, Mac Catalyst, tvOS and watchOS. The results are returned as `CGImage`, which can be easily displayed (for example) in a `NSImage` (AppKit), `UIImage` (UIKit) or `Image` (SwiftUI).
 
@@ -12,6 +12,10 @@ Because it relies on CG, it's already multi-platform. It supports iOS (+ iPadOS)
 ### Combine Images
 #### Input
 Suppose you would like to combine the following images:
+
+<img src="https://github.com/backslash-f/simage/blob/master/Resources/image_0.jpg" width="65">  <img src="https://github.com/backslash-f/simage/blob/master/Resources/image_1.jpg" width="65">  <img src="https://github.com/backslash-f/simage/blob/master/Resources/image_2.jpg" width="65">  <img src="https://github.com/backslash-f/simage/blob/master/Resources/image_3.jpg" width="65">  <img src="https://github.com/backslash-f/simage/blob/master/Resources/image_4.jpg" width="65">  <img src="https://github.com/backslash-f/simage/blob/master/Resources/image_5.jpg" width="100">  <img src="https://github.com/backslash-f/simage/blob/master/Resources/image_6.jpg" width="100">  <img src="https://github.com/backslash-f/simage/blob/master/Resources/image_7.jpg" width="100">  <img src="https://github.com/backslash-f/simage/blob/master/Resources/image_8.jpg" width="100">
+
+(Notice the different orientations. Kudos [to this repo](https://github.com/recurser/exif-orientation-examples).)
 
 #### Code
 ```swift
@@ -25,6 +29,9 @@ SImage().combineImages(source: imageURLs) { cgImage, error in
 ```
 
 #### Output
+<img src="https://github.com/backslash-f/simage/blob/master/Resources/result_image.jpg">
+
+(Notice that the orientation is normalized to "`.up`" in this example.)
 
 ### Optional Settings
 To overwrite the default settings, it's possible to pass a custom `SImageSettings` instance as argument to the combine function:
