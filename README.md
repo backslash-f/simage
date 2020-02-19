@@ -4,9 +4,9 @@
 [![license](https://img.shields.io/badge/license-mit-brightgreen.svg)](https://en.wikipedia.org/wiki/MIT_License)
 
 # SImage
-A wrapper around [`Core Graphics (CG)`](https://developer.apple.com/documentation/coregraphics) that provides functionalities such as image combination (with orientation handling). There's an example below.
+A wrapper around [`Core Graphics (CG)`](https://developer.apple.com/documentation/coregraphics) that provides functionalities such as combining images while adjusting their orientation. There's an example below.
 
-Because it relies on CG, it's already multi-platform, supporting iOS (+ iPadOS), macOS, Mac Catalyst, tvOS and watchOS.
+Because it relies on CG, it's already multi-platform. It supports iOS (+ iPadOS), macOS, Mac Catalyst, tvOS and watchOS. The results are returned as `CGImage`, which can be easily displayed (for example) in a `NSImage` (AppKit), `UIImage` (UIKit) or `Image` (SwiftUI).
 
 ## Usage
 ### Combine Images
