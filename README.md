@@ -23,7 +23,7 @@ let imageURLs = [URL] // Suppose this URL array points to the above images.
 
 SImage().combineImages(source: imageURLs) { cgImage, error in
     if let resultImage = cgImage {
-        // Do whatever with the result image
+        // Do whatever with the result image.
     }
 }
 ```
@@ -31,7 +31,7 @@ SImage().combineImages(source: imageURLs) { cgImage, error in
 #### Output
 <img src="https://github.com/backslash-f/simage/blob/master/Resources/result_image.jpg">
 
-(Notice that the orientation is normalized to "`.up`" in this example.)
+(Notice that in this example the orientation is normalized to "`.up`".)
 
 ### Optional Settings
 To overwrite the default settings, it's possible to pass a custom `SImageSettings` instance as argument to the combine function:
