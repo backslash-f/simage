@@ -13,7 +13,7 @@ Because it relies on CG, it's already multi-platform. It supports iOS (+ iPadOS)
 #### Input
 Suppose you would like to combine the following images:
 
-<img src="https://github.com/backslash-f/simage/blob/master/Resources/image_0.jpg" width="65">  <img src="https://github.com/backslash-f/simage/blob/master/Resources/image_1.jpg" width="65">  <img src="https://github.com/backslash-f/simage/blob/master/Resources/image_2.jpg" width="65">  <img src="https://github.com/backslash-f/simage/blob/master/Resources/image_3.jpg" width="65">  <img src="https://github.com/backslash-f/simage/blob/master/Resources/image_4.jpg" width="65">  <img src="https://github.com/backslash-f/simage/blob/master/Resources/image_5.jpg" width="100">  <img src="https://github.com/backslash-f/simage/blob/master/Resources/image_6.jpg" width="100">  <img src="https://github.com/backslash-f/simage/blob/master/Resources/image_7.jpg" width="100">  <img src="https://github.com/backslash-f/simage/blob/master/Resources/image_8.jpg" width="100">
+<img src="https://i.imgur.com/FhaKe4D.jpg" width="65">  <img src="https://i.imgur.com/3lknfpX.jpg" width="65">  <img src="https://i.imgur.com/BYt1ijq.jpg" width="65">  <img src="https://i.imgur.com/A9HS8ur.jpg" width="65">  <img src="https://i.imgur.com/G79ViDr.jpg" width="65">  <img src="https://i.imgur.com/Ehzp9yE.jpg" width="100">  <img src="https://i.imgur.com/RPPR4SM.jpg" width="100">  <img src="https://i.imgur.com/JuDklw2.jpg" width="100">  <img src="https://i.imgur.com/FctNAtX.jpg" width="100">
 
 (Notice the different orientations. Kudos [to this repo](https://github.com/recurser/exif-orientation-examples).)
 
@@ -29,7 +29,7 @@ SImage().combineImages(source: imageURLs) { cgImage, error in
 ```
 
 #### Output
-<img src="https://github.com/backslash-f/simage/blob/master/Resources/result_image.jpg">
+<img src="https://i.imgur.com/iS1Jhsj.jpg">
 
 (Notice that in this example the orientation is normalized to "`.up`".)
 
