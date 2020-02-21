@@ -36,7 +36,7 @@ SImage().combineImages(source: imageURLs) { cgImage, error in
 ### Optional Settings
 To overwrite the default settings, it's possible to pass a custom `SImageSettings` instance as argument to the combine function:
 ```
-SImage.combineImages(source:settings:completion:)
+SImage.combineImages(source:👉🏻settings:👈🏻completion:)
 ```
 
  An example of a default setting would be:
