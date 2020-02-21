@@ -49,7 +49,7 @@ Default is ".up"
 ## Available APIs
 API | Description
 --- | -----------
-`SImage.combineImages(source:settings:completion:)` | Combines the images in the given array of `URL` using given `SImageSettings`. Fixes orientation. Returns: `CGImage`. 
+`SImage.combineImages(source:settings:completion:)` | Combines the images in the given array of `URL` using given `SImageSettings`. **Fixes orientation**. Returns: `CGImage`. 
 `SImage.combine(images:settings:completion:)` | Combines given images using given `SImageSettings`. **Does not** fix orientation. Returns: `CGImage`.
 `SImage.createImage(from:)` | Creates a `CGImage` from given `URL`. Returns: `CGImage`.
 `SImage.context(for:settings:)` | Creates `CGContext` using given `CGSize` and `SImageSettings`. Returns: `CGContext`.
