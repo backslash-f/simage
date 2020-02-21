@@ -46,6 +46,14 @@ Default is ".up"
 ```
 ⚠️ (Currently only `.up` is supported.)
 
+## Available APIs
+API | Description
+--- | -----------
+`SImage.combineImages(source:settings:completion:)` | Combines the images in the given array of `URL` using given `SImageSettings`. Fixes orientation. Returns: `CGImage`. 
+`SImage.combine(images:settings:completion:)` | Combines given images using given `SImageSettings`. **Does not** fix orientation. Returns: `CGImage`.
+`SImage.createImage(from:)` | Creates a `CGImage` from given `URL`. Returns: `CGImage`.
+`SImage.context(for:settings:)` | Creates `CGContext` using given `CGSize` and `SImageSettings`. Returns: `CGContext`.
+
 ## Integration
 ### Xcode
 Use Xcode's [built-in support for SPM](https://developer.apple.com/documentation/xcode/adding_package_dependencies_to_your_app) (`File / Swift Packages / Add Package Dependency`).
