@@ -5,10 +5,12 @@ public enum SImageError: Error {
     case cannotBeCalledFromMainThread
     case cannotCreateContext
     case cannotCreateImage(from: URL?)
+    case cannotDistributeImagesHorizontally
     case cannotGetImageOrientation(from: URL)
     case cannotGetImageProperties(from: URL)
     case cannotGetImageSize(from: URL)
     case cannotRotateImage
     case invalidHeight
+    case invalidNumberOfImages
     case unknownError
 }

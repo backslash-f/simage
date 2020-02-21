@@ -10,6 +10,7 @@ final class SImageTests: XCTestCase {
     static var allTests = [
         ("testCreateCGImage", testCreateCGImage),
         ("testCreateCGImageFromMainThread", testCreateCGImageFromMainThread),
+        ("testCombineImagesFromURL", testCombineImagesFromURL),
         ("testCombineImages", testCombineImages)
     ]
 
@@ -48,7 +49,7 @@ extension SImageTests {
                 }
                 imageCreationExpectation.fulfill()
             } catch {
-                XCTFail("Cannot create an image. Error: \(error)")
+                XCTFail("Cannot create an image.💥 Error: \(error)")
             }
         }
         waitForExpectations(timeout: 1, handler: nil)
@@ -79,15 +80,14 @@ extension SImageTests {
         waitForExpectations(timeout: 1, handler: nil)
     }
 
-    /// Tests that images are combined as expected using the default `SImageSettings` (e.g.: target orientation ==
-    /// CGImagePropertyOrientation = .up).
-    func testCombineImages() {
+    /// Tests that images are combined via image `URL`s (`SImage.combineImages(source:settings:completion:)`).
+    func testCombineImagesFromURL() {
         let imageURLs = imageSourceURLs()
         let combineExpectation = expectation(description: "Images combined successfully.")
 
         simage.combineImages(source: imageURLs) { image, error in
             if let error = error {
-                XCTFail("Could not combine the images. Error: \(error.localizedDescription).")
+                XCTFail("Could not combine the images.💥 Error: \(error).")
             } else if let image = image {
                 guard image.height == 1800, image.width == 10800 else {
                     XCTFail("Invalid image dimensions. Height: \(image.height)), Width: \(image.width)).")
@@ -96,6 +96,40 @@ extension SImageTests {
                 combineExpectation.fulfill()
             } else {
                 XCTFail("Could not combine the images")
+            }
+        }
+        waitForExpectations(timeout: 5, handler: nil)
+    }
+
+    /// Tests that an array of `CGImage` are combined via `SImage.combine(images:settings:completion:)`.
+    func testCombineImages() {
+        let combineExpectation = expectation(description: "Images combined successfully.")
+        var sourceImages = [CGImage]()
+
+        Worker.doBackgroundWork { [weak self] in
+            guard let self = self else {
+                XCTFail("Self is no more...")
+                return
+            }
+            for n in 0..<9 {
+                let imageURL = self.resourcesPath.appendingPathComponent("\(self.imagePrefix)\(n).jpg", isDirectory: false)
+                if let imageFromURL = try? self.simage.createImage(from: imageURL) {
+                    sourceImages.append(imageFromURL)
+                }
+            }
+
+            self.simage.combine(images: sourceImages) { image, error in
+                if let error = error {
+                    XCTFail("Could not combine the images.💥 Error: \(error).")
+                } else if let image = image {
+                    guard image.height == 1800, image.width == 13200 else {
+                        XCTFail("Invalid image dimensions. Height: \(image.height)), Width: \(image.width)).")
+                        return
+                    }
+                    combineExpectation.fulfill()
+                } else {
+                    XCTFail("Could not combine the images")
+                }
             }
         }
         waitForExpectations(timeout: 5, handler: nil)

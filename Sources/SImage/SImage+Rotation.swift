@@ -32,7 +32,11 @@ public extension SImage {
     ///   `[RotatedImage]`and `SImageError`.
     func rotateImages(in source: [URL],
                       targetOrientation: CGImagePropertyOrientation,
-                      completion: @escaping ([RotatedImage]?, Error?) -> Void) {
+                      completion: @escaping ([RotatedImage]?, SImageError?) -> Void) {
+        guard source.count > 1 else {
+            completion(nil, SImageError.invalidNumberOfImages)
+            return
+        }
         var rotatedImages = [RotatedImage]()
         Worker.doBackgroundWork {
             do {
@@ -67,7 +71,7 @@ public extension SImage {
                 }
                 completion(rotatedImages, nil)
             } catch {
-                completion(nil, error)
+                completion(nil, error as? SImageError)
             }
         }
     }

@@ -9,7 +9,7 @@ public struct SImage {
 // MARK: - Interface
 
 public extension SImage {
-
+    
     /// Combines the images in the given array of `URL` using settings from the given `SImageSettings`.
     ///
     /// Images are rotated via `SImage.rotateImages`, if necessary. Then the images are horizontally combined.
@@ -18,12 +18,12 @@ public extension SImage {
     /// - Parameters:
     ///   - urls: array of `URL` where the images to be combined can be extracted.
     ///   - settings: `SImageSettings` that stores combination / `CGContext` creation settings.
-    ///   - completion: Code to be executed after the operations finished. Returns optionals `CGImage` and `Error`.
-    /// - Throws: `SImageError` in case the images couldn't be rotated or created (drawn / made via `CoreGraphics`).
+    ///   - completion: Code to be executed after the operations finished. Returns optionals `CGImage` and
+    ///   `SImageError`.
     func combineImages(source urls: [URL],
                        settings: SImageSettings = SImageSettings(),
-                       completion: @escaping (CGImage?, Error?) -> Void) {
-        self.rotateImages(in: urls, targetOrientation: settings.targetOrientation) { result, error in
+                       completion: @escaping (CGImage?, SImageError?) -> Void) {
+        rotateImages(in: urls, targetOrientation: settings.targetOrientation) { result, error in
             guard let rotatedImages = result else {
                 completion(nil, SImageError.cannotRotateImage)
                 return
@@ -38,6 +38,33 @@ public extension SImage {
         }
     }
 
+    /// Combines the given images using settings from the given `SImageSettings`.
+    ///
+    /// This function does not take the image orientation into consideration. That is: it won't fix images that
+    /// have rotation different than `SImageSettings.getter:targetOrientation`. Reason is: the rotation algorithm
+    /// relies on the image metadata, which may not be present in a `CGImage` instance.
+    ///
+    /// - Parameters:
+    ///   - urls: array of `CGImage` representing the images to be combined.
+    ///   - settings: `SImageSettings` that stores combination / `CGContext` creation settings.
+    ///   - completion: Code to be executed after the operations finished. Returns optionals `CGImage` and
+    ///   `SImageError`.
+    func combine(images: [CGImage],
+                 settings: SImageSettings = SImageSettings(),
+                 completion: @escaping (CGImage?, SImageError?) -> Void) {
+        guard images.count > 1 else {
+            completion(nil, SImageError.invalidNumberOfImages)
+            return
+        }
+        distributeImagesHorizontally(images: images) { result, error in
+            guard let finalImage = result else {
+                completion(nil, error ?? SImageError.unknownError)
+                return
+            }
+            completion(finalImage, nil)
+        }
+    }
+    
     /// Creates a `CGImage` from the given `URL`.
     ///
     /// This function must be called from the main thread (to avoid possible performance issues).
@@ -56,7 +83,7 @@ public extension SImage {
         }
         return image
     }
-
+    
     /// Creates `CGContext` using the given `CGSize` and `SImageSettings`.
     ///
     /// - Parameters:

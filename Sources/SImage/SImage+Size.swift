@@ -24,8 +24,19 @@ public extension SImage {
     /// - Throws: `SImageError.invalidHeight` in case no image has height > 0.
     /// - Returns: `CGSize` from the `width` and `height` of the given array of `RotatedImage`.
     func horizontalSize(for rotatedImages: [RotatedImage]) throws -> CGSize {
-        let width = rotatedImages.map { $0.size.width }.reduce(0, +)
-        guard let height = rotatedImages.map({ $0.size.height }).max(),
+        return try horizontalSize(for: rotatedImages.map { $0.image })
+    }
+
+    /// Creates and returns a `CGSize` based on the given array of `CGImage`.
+    ///
+    /// The size will have **the sum of the images width** as its own width and the height of the highest image.
+    ///
+    /// - Parameter images: `CGImage` array, from which the `width` and `height` will be extracted.
+    /// - Throws: `SImageError.invalidHeight` in case no image has height > 0.
+    /// - Returns: `CGSize` from the `width` and `height` of the given array of `CGImage`.
+    func horizontalSize(for images: [CGImage]) throws -> CGSize {
+        let width = images.map { $0.width }.reduce(0, +)
+        guard let height = images.map({ $0.height }).max(),
             height > 0 else {
                 throw SImageError.invalidHeight
         }
