@@ -1,6 +1,6 @@
 [![swift-version](https://img.shields.io/badge/swift-5.1-brightgreen)](https://github.com/apple/swift)
 [![swift-package-manager](https://img.shields.io/badge/package%20manager-compatible-brightgreen.svg)](https://github.com/apple/swift-package-manager)
-[![build-status](https://github.com/backslash-f/simage/workflows/build/badge.svg?branch=master)](https://github.com/backslash-f/simage/actions)
+[![build-status](https://github.com/backslash-f/simage/workflows/build/badge.svg)](https://github.com/backslash-f/simage/actions)
 [![license](https://img.shields.io/badge/license-mit-brightgreen.svg)](https://en.wikipedia.org/wiki/MIT_License)
 
 # SImage
