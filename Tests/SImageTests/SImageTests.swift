@@ -22,7 +22,6 @@ final class SImageTests: XCTestCase {
         let currentFileURL = URL(fileURLWithPath: "\(#file)", isDirectory: false)
         return currentFileURL.deletingLastPathComponent().appendingPathComponent("Resources")
     }
-    private let simage = SImage()
     private let imagePrefix = "image_"
     private let resultImagePrefix = "result_image"
     private let resultImageExpectedPrefix = "result_image_expected"
@@ -38,13 +37,9 @@ extension SImageTests {
         let imageURL = randomImageURL()
         let imageCreationExpectation = expectation(description: "Image created successfully.")
 
-        Worker.doBackgroundWork { [weak self] in
-            guard let self = self else {
-                XCTFail("Self is no more...")
-                return
-            }
+        Worker.doBackgroundWork {
             do {
-                let cgImage = try self.simage.createImage(from: imageURL)
+                let cgImage = try SImage().createImage(from: imageURL)
                 XCTAssertTrue(cgImage.height > 0, "Invalid height: \(cgImage.height)")
                 XCTAssertTrue(cgImage.width > 0, "Invalid height: \(cgImage.width)")
                 imageCreationExpectation.fulfill()
@@ -62,13 +57,8 @@ extension SImageTests {
         let mainThreadErrorExpectation = expectation(description: description)
 
         Worker.doMainThreadWork {
-            [weak self] in
-            guard let self = self else {
-                XCTFail("Self is no more...")
-                return
-            }
             do {
-                _ = try self.simage.createImage(from: imageURL)
+                _ = try SImage().createImage(from: imageURL)
             } catch {
                 guard case SImageError.cannotBeCalledFromMainThread = error else {
                     XCTFail("SImage.combineImages(source:settings:completion:) must fail on the main thread.")
@@ -85,7 +75,7 @@ extension SImageTests {
         let imageURLs = imageSourceURLs()
         let combineExpectation = expectation(description: "Images combined successfully.")
 
-        simage.combineImages(source: imageURLs) { image, error in
+        SImage().combineImages(source: imageURLs) { image, error in
             if let error = error {
                 XCTFail("Could not combine the images.💥 Error: \(error).")
             } else if let image = image {
@@ -111,12 +101,12 @@ extension SImageTests {
             }
             for n in 0..<9 {
                 let imageURL = self.resourcesPath.appendingPathComponent("\(self.imagePrefix)\(n).jpg", isDirectory: false)
-                if let imageFromURL = try? self.simage.createImage(from: imageURL) {
+                if let imageFromURL = try? SImage().createImage(from: imageURL) {
                     sourceImages.append(imageFromURL)
                 }
             }
 
-            self.simage.combine(images: sourceImages) { image, error in
+            SImage().combine(images: sourceImages) { image, error in
                 if let error = error {
                     XCTFail("Could not combine the images.💥 Error: \(error).")
                 } else if let image = image {
@@ -136,7 +126,7 @@ extension SImageTests {
         let thumbnailCreationExpectation = expectation(description: "A thumbnail was successfully created.")
         let imageURL = randomImageURL()
 
-        simage.createThumbnail(from: imageURL) { cgImage in
+        SImage().createThumbnail(from: imageURL) { cgImage in
             guard let thumbnail = cgImage else {
                 XCTFail("The thumbnail was not created.")
                 return
@@ -157,7 +147,7 @@ extension SImageTests {
         let imageURL = randomImageURL()
         let settings = SImageSettings(thumbsMaxPixelSize: "50")
 
-        simage.createThumbnail(from: imageURL, settings: settings) { cgImage in
+        SImage().createThumbnail(from: imageURL, settings: settings) { cgImage in
             guard let thumbnail = cgImage else {
                 XCTFail("The thumbnail was not created.")
                 return

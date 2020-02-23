@@ -65,7 +65,7 @@ public extension SImage {
         }
     }
 
-    /// Creates a thumbnail from the image at the given `CFURL` via `CGImageSourceCreateThumbnailAtIndex(_:_:_:)`.
+    /// Creates a thumbnail from the image at the given `URL` via `CGImageSourceCreateThumbnailAtIndex(_:_:_:)`.
     ///
     /// - Parameters:
     ///   - url: `URL` from where the source image is coming from.
