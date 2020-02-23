@@ -11,7 +11,9 @@ final class SImageTests: XCTestCase {
         ("testCreateCGImage", testCreateCGImage),
         ("testCreateCGImageFromMainThread", testCreateCGImageFromMainThread),
         ("testCombineImagesFromURL", testCombineImagesFromURL),
-        ("testCombineImages", testCombineImages)
+        ("testCombineImages", testCombineImages),
+        ("testCreateThumbnail", testCreateThumbnail),
+        ("testCreateThumbnailWithMaxPixelSize", testCreateThumbnailWithMaxPixelSize)
     ]
 
     // MARK: - Private Properties
@@ -43,10 +45,8 @@ extension SImageTests {
             }
             do {
                 let cgImage = try self.simage.createImage(from: imageURL)
-                guard cgImage.height > 0, cgImage.width > 0 else {
-                    XCTFail("Invalid image dimensions. Height: \(cgImage.height)), Width: \(cgImage.width)).")
-                    return
-                }
+                XCTAssertTrue(cgImage.height > 0, "Invalid height: \(cgImage.height)")
+                XCTAssertTrue(cgImage.width > 0, "Invalid height: \(cgImage.width)")
                 imageCreationExpectation.fulfill()
             } catch {
                 XCTFail("Cannot create an image.💥 Error: \(error)")
@@ -89,10 +89,8 @@ extension SImageTests {
             if let error = error {
                 XCTFail("Could not combine the images.💥 Error: \(error).")
             } else if let image = image {
-                guard image.height == 1800, image.width == 10800 else {
-                    XCTFail("Invalid image dimensions. Height: \(image.height)), Width: \(image.width)).")
-                    return
-                }
+                XCTAssertTrue(image.height == 1800, "Invalid height: \(image.height)")
+                XCTAssertTrue(image.width == 10800, "Invalid height: \(image.width)")
                 combineExpectation.fulfill()
             } else {
                 XCTFail("Could not combine the images")
@@ -122,15 +120,50 @@ extension SImageTests {
                 if let error = error {
                     XCTFail("Could not combine the images.💥 Error: \(error).")
                 } else if let image = image {
-                    guard image.height == 1800, image.width == 13200 else {
-                        XCTFail("Invalid image dimensions. Height: \(image.height)), Width: \(image.width)).")
-                        return
-                    }
+                    XCTAssertTrue(image.height == 1800, "Invalid height: \(image.height)")
+                    XCTAssertTrue(image.width == 13200, "Invalid height: \(image.width)")
                     combineExpectation.fulfill()
                 } else {
                     XCTFail("Could not combine the images")
                 }
             }
+        }
+        waitForExpectations(timeout: 5, handler: nil)
+    }
+
+    /// Tests that a thumbnail is created via `SImage.createThumbnail(from:settings:completion:)`.
+    func testCreateThumbnail() {
+        let thumbnailCreationExpectation = expectation(description: "A thumbnail was successfully created.")
+        let imageURL = randomImageURL()
+
+        simage.createThumbnail(from: imageURL) { cgImage in
+            guard let thumbnail = cgImage else {
+                XCTFail("The thumbnail was not created.")
+                return
+            }
+            XCTAssertTrue(thumbnail.height > 0, "Invalid height: \(thumbnail.height)")
+            XCTAssertTrue(thumbnail.width > 0, "Invalid height: \(thumbnail.width)")
+            thumbnailCreationExpectation.fulfill()
+        }
+        waitForExpectations(timeout: 5, handler: nil)
+    }
+
+    /// Tests that a thumbnail is correctly created via `SImage.createThumbnail(from:settings:completion:)` after
+    /// specifying the `maxPixelSize` (`SImageSettings.getter:thumbsMaxPixelSize`).
+    func testCreateThumbnailWithMaxPixelSize() {
+        let thumbnailCreationExpectation = expectation(description: """
+            A thumbnail with maxPixelSize == 50 was successfully created.
+        """)
+        let imageURL = randomImageURL()
+        let settings = SImageSettings(thumbsMaxPixelSize: "50")
+
+        simage.createThumbnail(from: imageURL, settings: settings) { cgImage in
+            guard let thumbnail = cgImage else {
+                XCTFail("The thumbnail was not created.")
+                return
+            }
+            XCTAssertTrue(thumbnail.height == 50 || thumbnail.width == 50)
+            thumbnailCreationExpectation.fulfill()
         }
         waitForExpectations(timeout: 5, handler: nil)
     }

@@ -64,6 +64,23 @@ public extension SImage {
             completion(finalImage, nil)
         }
     }
+
+    /// Creates a thumbnail from the image at the given `CFURL` via `CGImageSourceCreateThumbnailAtIndex(_:_:_:)`.
+    ///
+    /// - Parameters:
+    ///   - url: `URL` from where the source image is coming from.
+    ///   - completion: Block to be executed after the thumbnail creation finishes. Returns an optional `CGImage`.
+    func createThumbnail(from url: URL,
+                         settings: SImageSettings = SImageSettings(),
+                         completion: (CGImage?) -> Void) {
+        let options = createThumbnailOptions(with: settings)
+        guard let source = CGImageSourceCreateWithURL(url as CFURL, options),
+            let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options) else {
+                completion(nil)
+                return
+        }
+        completion(cgImage)
+    }
     
     /// Creates a `CGImage` from the given `URL`.
     ///
