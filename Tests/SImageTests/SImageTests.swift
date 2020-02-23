@@ -152,7 +152,9 @@ extension SImageTests {
                 XCTFail("The thumbnail was not created.")
                 return
             }
-            XCTAssertTrue(thumbnail.height == 50 || thumbnail.width == 50)
+            let expectation = thumbnail.height == 50 || thumbnail.width == 50
+            let message = "Invalid thumbnail size. Height: \(thumbnail.height), Width: \(thumbnail.width))"
+            XCTAssertTrue(expectation, message)
             thumbnailCreationExpectation.fulfill()
         }
         waitForExpectations(timeout: 5, handler: nil)

@@ -3,7 +3,7 @@
     "pins": [
       {
         "package": "Worker",
-        "repositoryURL": "https://github.com/backslash-f/Worker",
+        "repositoryURL": "https://github.com/backslash-f/worker",
         "state": {
           "branch": null,
           "revision": "8182193166849c210a196fb24c2e93b6661df85f",

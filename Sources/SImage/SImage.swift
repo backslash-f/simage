@@ -1,4 +1,5 @@
 import SwiftUI
+import Worker
 
 /// Wrapper around `Core Graphics` that can provide functionalities such as image combination, image rotation, etc.
 /// Because it relies on Core Graphics, it's multi-platform. It can run in macOS, iOS, iPadOS, tvOS, watchOS.
@@ -67,19 +68,23 @@ public extension SImage {
 
     /// Creates a thumbnail from the image at the given `URL` via `CGImageSourceCreateThumbnailAtIndex(_:_:_:)`.
     ///
+    /// Notice: the thumbnail creation happens in a background thread (via `Worker.doBackgroundWork(_:)`).
+    ///
     /// - Parameters:
     ///   - url: `URL` from where the source image is coming from.
     ///   - completion: Block to be executed after the thumbnail creation finishes. Returns an optional `CGImage`.
     func createThumbnail(from url: URL,
                          settings: SImageSettings = SImageSettings(),
-                         completion: (CGImage?) -> Void) {
+                         completion: @escaping (CGImage?) -> Void) {
         let options = createThumbnailOptions(with: settings)
-        guard let source = CGImageSourceCreateWithURL(url as CFURL, options),
-            let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options) else {
-                completion(nil)
-                return
+        Worker.doBackgroundWork {
+            guard let source = CGImageSourceCreateWithURL(url as CFURL, options),
+                let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options) else {
+                    completion(nil)
+                    return
+            }
+            completion(cgImage)
         }
-        completion(cgImage)
     }
     
     /// Creates a `CGImage` from the given `URL`.

@@ -10,7 +10,7 @@ let package = Package(
             targets: ["SImage"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/backslash-f/Worker", from: "1.0.0")
+        .package(url: "https://github.com/backslash-f/worker", from: "1.0.0")
     ],
     targets: [
         .target(
