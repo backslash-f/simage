@@ -33,6 +33,30 @@ SImage().combineImages(source: imageURLs) { cgImage, error in
 
 (Notice that in this example the orientation is normalized to "`.up`".)
 
+### Create Thumbnails
+```swift
+let imageURL = URL(string: "My huge image URL")
+
+simage.createThumbnail(from: imageURL) { cgImage in
+    if let thumbnail = cgImage {
+        // Do whatever with the thumbnail.
+    }
+}
+```
+
+To create thumbnails with [a max pixel size](https://developer.apple.com/documentation/imageio/kcgimagesourcethumbnailmaxpixelsize)
+
+```swift
+let imageURL = URL(string: "My huge image URL")
+let settings = SImageSettings(thumbsMaxPixelSize: "50")
+
+simage.createThumbnail(from: imageURL, settings: settings) { cgImage in
+    if let thumbnail = cgImage {
+        // Do whatever with the thumbnail.
+    }
+}
+```
+
 ### Optional Settings
 To overwrite the default settings, it's possible to pass a custom `SImageSettings` instance as argument to the combine function:
 ```
@@ -53,6 +77,7 @@ API | Description
 `SImage.combine(images:settings:completion:)` | Combines given images using given `SImageSettings`. **Does not** fix orientation. Returns: `CGImage`.
 `SImage.createImage(from:)` | Creates a `CGImage` from given `URL`. Returns: `CGImage`.
 `SImage.context(for:settings:)` | Creates `CGContext` using given `CGSize` and `SImageSettings`. Returns: `CGContext`.
+`SImage.createThumbnail(from:settings:completion:)` | Creates a thumbnail from the image at the given `URL`. Returns: `CGImage`.
 
 ## Integration
 ### Xcode
