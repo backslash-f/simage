@@ -67,13 +67,6 @@ SImage.combineImages(source:👉🏻settings:👈🏻completion:)
 SImage.createThumbnail(from:👉🏻settings:👈🏻completion:)
 ```
 
- An example of a default setting would be:
-```
-targetOrientation: In a rotation operation, defines the desired orientation for the result image.
-Default is ".up"
-```
-⚠️ (Currently only `.up` is supported.)
-
 ## Available APIs
 API | Description
 --- | -----------
