@@ -10,6 +10,7 @@ public enum SImageError: Error {
     case cannotGetImageProperties(from: URL)
     case cannotGetImageSize(from: URL)
     case cannotRotateImage
+    case cannotSaveImage
     case invalidHeight
     case invalidNumberOfImages
     case unknownError

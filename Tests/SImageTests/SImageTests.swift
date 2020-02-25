@@ -8,12 +8,13 @@ final class SImageTests: XCTestCase {
     // MARK: - Public Properties
 
     static var allTests = [
+        ("testCombineImages", testCombineImages),
+        ("testCombineImagesFromURL", testCombineImagesFromURL),
         ("testCreateCGImage", testCreateCGImage),
         ("testCreateCGImageFromMainThread", testCreateCGImageFromMainThread),
-        ("testCombineImagesFromURL", testCombineImagesFromURL),
-        ("testCombineImages", testCombineImages),
         ("testCreateThumbnail", testCreateThumbnail),
-        ("testCreateThumbnailWithMaxPixelSize", testCreateThumbnailWithMaxPixelSize)
+        ("testCreateThumbnailWithMaxPixelSize", testCreateThumbnailWithMaxPixelSize),
+        ("testSaveImage", testSaveImage)
     ]
 
     // MARK: - Private Properties
@@ -34,17 +35,17 @@ extension SImageTests {
 
     /// Tests that a `CGImage` can be created from a (valid) image `URL`.
     func testCreateCGImage() {
-        let imageURL = randomImageURL()
         let imageCreationExpectation = expectation(description: "Image created successfully.")
+        let imageURL = randomImageURL()
 
         Worker.doBackgroundWork {
             do {
                 let cgImage = try SImage().createImage(from: imageURL)
-                XCTAssertTrue(cgImage.height > 0, "Invalid height: \(cgImage.height)")
-                XCTAssertTrue(cgImage.width > 0, "Invalid height: \(cgImage.width)")
+                XCTAssertTrue(cgImage.height > 0, "Invalid height: \(cgImage.height).")
+                XCTAssertTrue(cgImage.width > 0, "Invalid height: \(cgImage.width).")
                 imageCreationExpectation.fulfill()
             } catch {
-                XCTFail("Cannot create an image.💥 Error: \(error)")
+                XCTFail("Cannot create an image. 💥 Error: \(error).")
             }
         }
         waitForExpectations(timeout: 1, handler: nil)
@@ -52,9 +53,9 @@ extension SImageTests {
 
     /// Tests that `SImage` throws an error if called from the main thread.
     func testCreateCGImageFromMainThread() {
-        let imageURL = randomImageURL()
         let description = "SImage.createImage(from:) must fail on the main thread."
         let mainThreadErrorExpectation = expectation(description: description)
+        let imageURL = randomImageURL()
 
         Worker.doMainThreadWork {
             do {
@@ -72,19 +73,18 @@ extension SImageTests {
 
     /// Tests that images are combined via image `URL`s (`SImage.combineImages(source:settings:completion:)`).
     func testCombineImagesFromURL() {
-        let imageURLs = imageSourceURLs()
         let combineExpectation = expectation(description: "Images combined successfully.")
+        let imageURLs = imageSourceURLs()
 
         SImage().combineImages(source: imageURLs) { image, error in
-            if let error = error {
-                XCTFail("Could not combine the images.💥 Error: \(error).")
-            } else if let image = image {
-                XCTAssertTrue(image.height == 1800, "Invalid height: \(image.height)")
-                XCTAssertTrue(image.width == 10800, "Invalid height: \(image.width)")
-                combineExpectation.fulfill()
-            } else {
-                XCTFail("Could not combine the images")
+            XCTAssertNil(error, "Could not save the image. 💥 Error: \(error ?? SImageError.unknownError).")
+            guard let image = image else {
+                XCTFail("Could not combine the images.")
+                return
             }
+            XCTAssertTrue(image.height == 1800, "Invalid height: \(image.height).")
+            XCTAssertTrue(image.width == 10800, "Invalid height: \(image.width).")
+            combineExpectation.fulfill()
         }
         waitForExpectations(timeout: 5, handler: nil)
     }
@@ -107,15 +107,14 @@ extension SImageTests {
             }
 
             SImage().combine(images: sourceImages) { image, error in
-                if let error = error {
-                    XCTFail("Could not combine the images.💥 Error: \(error).")
-                } else if let image = image {
-                    XCTAssertTrue(image.height == 1800, "Invalid height: \(image.height)")
-                    XCTAssertTrue(image.width == 13200, "Invalid height: \(image.width)")
-                    combineExpectation.fulfill()
-                } else {
-                    XCTFail("Could not combine the images")
+                XCTAssertNil(error, "Could not save the image. 💥 Error: \(error ?? SImageError.unknownError).")
+                guard let image = image else {
+                    XCTFail("Could not combine the images.")
+                    return
                 }
+                XCTAssertTrue(image.height == 1800, "Invalid height: \(image.height).")
+                XCTAssertTrue(image.width == 13200, "Invalid height: \(image.width).")
+                combineExpectation.fulfill()
             }
         }
         waitForExpectations(timeout: 5, handler: nil)
@@ -131,8 +130,8 @@ extension SImageTests {
                 XCTFail("The thumbnail was not created.")
                 return
             }
-            XCTAssertTrue(thumbnail.height > 0, "Invalid height: \(thumbnail.height)")
-            XCTAssertTrue(thumbnail.width > 0, "Invalid height: \(thumbnail.width)")
+            XCTAssertTrue(thumbnail.height > 0, "Invalid height: \(thumbnail.height).")
+            XCTAssertTrue(thumbnail.width > 0, "Invalid height: \(thumbnail.width).")
             thumbnailCreationExpectation.fulfill()
         }
         waitForExpectations(timeout: 5, handler: nil)
@@ -153,9 +152,31 @@ extension SImageTests {
                 return
             }
             let expectation = thumbnail.height == 50 || thumbnail.width == 50
-            let message = "Invalid thumbnail size. Height: \(thumbnail.height), Width: \(thumbnail.width))"
+            let message = "Invalid thumbnail size. Height: \(thumbnail.height), Width: \(thumbnail.width)."
             XCTAssertTrue(expectation, message)
             thumbnailCreationExpectation.fulfill()
+        }
+        waitForExpectations(timeout: 5, handler: nil)
+    }
+
+    func testSaveImage() {
+        let saveImageExpectation = expectation(description: "Image saved successfully.")
+
+        Worker.doBackgroundWork { [weak self] in
+            guard let self = self else {
+                XCTFail("Self is no more...")
+                return
+            }
+            guard let image = self.randomImage() else {
+                XCTFail("Could not retrieve a resource image.")
+                return
+            }
+
+            SImage().save(image: image, destinationURL: self.resourcesPath) { url, error in
+                XCTAssertNil(error, "Could not save the image. 💥 Error: \(error ?? SImageError.unknownError).")
+                XCTAssertTrue(url != nil, "Could not save the image.")
+                saveImageExpectation.fulfill()
+            }
         }
         waitForExpectations(timeout: 5, handler: nil)
     }
@@ -164,6 +185,11 @@ extension SImageTests {
 // MARK: - Private
 
 private extension SImageTests {
+
+    /// Retrieves a random `CGImage`.
+    func randomImage() -> CGImage? {
+        return try? SImage().createImage(from: randomImageURL())
+    }
 
     /// Retrieves a random image URL as in, for example, the URL for "image_7". Return it as an `URL`.
     func randomImageURL() -> URL {

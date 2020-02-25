@@ -19,6 +19,13 @@ public struct SImageSettings {
     private(set) var thumbsAlwaysFromImage: Bool
     private(set) var thumbsMaxPixelSize: String?
 
+    // MARK: - Save Image
+
+    private(set) var saveFilename: String
+    private(set) var saveSearchPathDirectory: FileManager.SearchPathDirectory
+    private(set) var saveSearchPathDomainMask: FileManager.SearchPathDomainMask
+    private(set) var saveImageType: CFString
+
     // MARK: - Lifecycle
 
     /// Initializes a `SImageSettings` instance, which stores a variety of settings that can be used during the image
@@ -38,6 +45,7 @@ public struct SImageSettings {
     ///   - contextBitmapInfo: Constants that specify whether the bitmap should contain an alpha channel when creating
     ///   a new `CGContext`, the alpha channel’s relative location in a pixel, and information about whether the pixel
     ///   components are floating-point or integer values. Default is `CGImageAlphaInfo.premultipliedLast.rawValue`.
+    ///
     ///   - thumbsShouldAllowFloat: Whether the thumbnail image should be returned as a `CGImage` object that uses
     ///   floating-point values, if supported by the file format. `CGImage` objects that use extended-range
     ///   floating-point values may require additional processing to render in a pleasing manner. The default is `true`.
@@ -47,6 +55,14 @@ public struct SImageSettings {
     ///   present in the image source file. The thumbnail is created from the full image, subject to the limit specified
     ///   by `maxPixelSize`. The default is `true`.
     ///   - thumbsMaxPixelSize: An optional maximum width or height in pixels of a thumbnail. The default is `nil`.
+    ///
+    ///   - saveFilename: Used by `URL.appendingPathComponent(_:)` during image saving The default is `SImage.png`.
+    ///   - saveSearchPathDirectory: Used by `NSFileManager.url(for:in:appropriateFor:create:)` during image saving
+    ///   (it's the `for` parameter. The default is `.userDirectory`.
+    ///   - saveSearchPathDomainMask: Used by `NSFileManager.url(for:in:appropriateFor:create:)` during image saving
+    ///   (it's the `in` parameter. The default is `.userDomainMask`.
+    ///   - saveImageType: The UTI (uniform type identifier) of the resulting image file. Used by
+    ///   `CGImageDestinationCreateWithURL(_:_:_:_:)` during image saving. The default is `.kUTTypePNG`.
     public init(targetOrientation: CGImagePropertyOrientation = .up,
                 contextBitsPerComponent: Int = 8,
                 contextBytesPerRow: Int = 0,
@@ -55,7 +71,11 @@ public struct SImageSettings {
                 thumbsShouldAllowFloat: Bool = true,
                 thumbsShouldRotateAndScale: Bool = true,
                 thumbsAlwaysFromImage: Bool = true,
-                thumbsMaxPixelSize: String? = nil) {
+                thumbsMaxPixelSize: String? = nil,
+                saveFilename: String = "SImage.png",
+                saveSearchPathDirectory: FileManager.SearchPathDirectory = .userDirectory,
+                saveSearchPathDomainMask: FileManager.SearchPathDomainMask = .userDomainMask,
+                saveImageType: CFString = kUTTypePNG) {
 
         self.targetOrientation = targetOrientation
         self.contextBitsPerComponent = contextBitsPerComponent
@@ -67,5 +87,10 @@ public struct SImageSettings {
         self.thumbsShouldRotateAndScale = thumbsShouldRotateAndScale
         self.thumbsAlwaysFromImage = thumbsAlwaysFromImage
         self.thumbsMaxPixelSize = thumbsMaxPixelSize
+
+        self.saveFilename = saveFilename
+        self.saveSearchPathDirectory = saveSearchPathDirectory
+        self.saveSearchPathDomainMask = saveSearchPathDomainMask
+        self.saveImageType = saveImageType
     }
 }
