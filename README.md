@@ -16,7 +16,7 @@ Suppose you would like to combine the following images:
 
 <img src="https://i.imgur.com/FhaKe4D.jpg" width="65">  <img src="https://i.imgur.com/3lknfpX.jpg" width="65">  <img src="https://i.imgur.com/BYt1ijq.jpg" width="65">  <img src="https://i.imgur.com/A9HS8ur.jpg" width="65">  <img src="https://i.imgur.com/G79ViDr.jpg" width="65">  <img src="https://i.imgur.com/Ehzp9yE.jpg" width="100">  <img src="https://i.imgur.com/RPPR4SM.jpg" width="100">  <img src="https://i.imgur.com/JuDklw2.jpg" width="100">  <img src="https://i.imgur.com/FctNAtX.jpg" width="100">
 
-(Notice the different orientations. Kudos [to this repo](https://github.com/recurser/exif-orientation-examples).)
+(Notice the distinct orientations. Kudos [to this repo](https://github.com/recurser/exif-orientation-examples).)
 
 #### Code
 ```swift
@@ -45,7 +45,7 @@ simage.createThumbnail(from: imageURL) { cgImage in
 }
 ```
 
-To create thumbnails with [a max pixel size](https://developer.apple.com/documentation/imageio/kcgimagesourcethumbnailmaxpixelsize)
+To create thumbnails with [a max pixel size](https://developer.apple.com/documentation/imageio/kcgimagesourcethumbnailmaxpixelsize):
 
 ```swift
 let imageURL = URL(string: "My huge image URL")
@@ -53,7 +53,7 @@ let settings = SImageSettings(thumbsMaxPixelSize: "50")
 
 simage.createThumbnail(from: imageURL, settings: settings) { cgImage in
     if let thumbnail = cgImage {
-        // Do whatever with the thumbnail.
+        // Do whatever with the 50px thumbnail.
     }
 }
 ```
