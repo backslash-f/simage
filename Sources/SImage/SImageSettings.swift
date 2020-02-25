@@ -1,5 +1,9 @@
 import SwiftUI
 
+#if !os(macOS)
+import MobileCoreServices
+#endif
+
 /// Stores a variety of settings to be used during image operations such as combination, rotation, thumbnail creation,
 /// etc.
 public struct SImageSettings {
