@@ -8,7 +8,12 @@ import MobileCoreServices
 /// etc.
 public struct SImageSettings {
 
-    // MARK: - Properties
+    // MARK: - Public Properties
+
+    /// Default value of the image saved by `SImage.save(image:settings:completion:)`.
+    public static let defaultImageFilename = "SImage.png"
+
+    // MARK: - Private Properties
 
     private(set) var targetOrientation: CGImagePropertyOrientation
     private(set) var contextBitsPerComponent: Int
@@ -59,9 +64,10 @@ public struct SImageSettings {
     ///   by `maxPixelSize`. The default is `true`.
     ///   - thumbsMaxPixelSize: An optional maximum width or height in pixels of a thumbnail. The default is `nil`.
     ///
-    ///   - saveFilename: The image filename. The default is `SImage.png`. If overridden, the **file type** must be also provided. For example: "*MyDesiredName.png*".
-    ///   - saveDestinationURL: Optional `URL` in which the given image should be saved. The default points to
-    ///   the user's directory (`FileManager.SearchPathDirectory.userDirectory`).
+    ///   - saveFilename: The image filename. The default is `SImageSettings.defaultImageFilename`. If overridden,
+    ///   the **file type** must be also provided. For example: "*MyDesiredName.png*".
+    ///   - saveDestinationURL: Optional `URL` in which the given image should be saved. It already appends the
+    ///   `saveFilename`. The default points to the temporary directory for the current user.
     ///   - saveImageType: The UTI (uniform type identifier) of the resulting image file. Used by
     ///   `CGImageDestinationCreateWithURL(_:_:_:_:)` during image saving. The default is `.kUTTypePNG`.
     public init(targetOrientation: CGImagePropertyOrientation = .up,
@@ -73,8 +79,8 @@ public struct SImageSettings {
                 thumbsShouldRotateAndScale: Bool = true,
                 thumbsAlwaysFromImage: Bool = true,
                 thumbsMaxPixelSize: String? = nil,
-                saveFilename: String = "SImage.png",
-                saveDestinationURL: URL? = nil,
+                saveFilename: String = SImageSettings.defaultImageFilename,
+                saveDestinationURL: URL = FileManager.default.temporaryDirectory,
                 saveImageType: CFString = kUTTypePNG) {
 
         self.targetOrientation = targetOrientation
@@ -89,34 +95,7 @@ public struct SImageSettings {
         self.thumbsMaxPixelSize = thumbsMaxPixelSize
 
         self.saveFilename = saveFilename
-        if let destinationURL = saveDestinationURL {
-            self.saveDestinationURL = destinationURL
-        } else {
-            self.saveDestinationURL = SImageSettings.defaultSaveDestinationURL()
-        }
-        self.saveDestinationURL.appendPathComponent(saveFilename)
+        self.saveDestinationURL = saveDestinationURL.appendingPathComponent(saveFilename)
         self.saveImageType = saveImageType
-    }
-}
-
-// MARK: - Private
-
-private extension SImageSettings {
-
-    /// Returns the default `URL` where the image is going to be saved. It points to the user's directory
-    /// (`FileManager.SearchPathDirectory.userDirectory`).
-    static func defaultSaveDestinationURL() -> URL {
-        guard let destinationURL = try? FileManager.default.url(
-            for: .userDirectory,
-            in: .userDomainMask,
-            appropriateFor: nil,
-            create: false
-            ) else {
-                // Should use `throws` or a failable initializer instead. But that would add another layer of complexity
-                // to callers, so it uses an empty URL for the time being. `SImage.save(image:settings:completion:)`
-                // will fail and return a `SImageError`.
-                return URL(fileURLWithPath: "")
-        }
-        return destinationURL
     }
 }

@@ -4,6 +4,9 @@ import PackageDescription
 
 let package = Package(
     name: "SImage",
+    platforms: [
+       .macOS(.v10_12) // Minimum macOS version due to "FileManager.default.temporaryDirectory"
+    ],
     products: [
         .library(
             name: "SImage",

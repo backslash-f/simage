@@ -142,7 +142,7 @@ public extension SImage {
               settings: SImageSettings = SImageSettings(),
               completion: @escaping (URL?, SImageError?) -> Void) {
 
-        guard let imgDestination = imageDestination(url: settings.saveDestinationURL) else {
+        guard let imgDestination = imageDestination(settings: settings) else {
             completion(nil, .cannotSaveImage)
             return
         }

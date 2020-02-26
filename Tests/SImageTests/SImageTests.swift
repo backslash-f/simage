@@ -14,7 +14,8 @@ final class SImageTests: XCTestCase {
         ("testCreateCGImageFromMainThread", testCreateCGImageFromMainThread),
         ("testCreateThumbnail", testCreateThumbnail),
         ("testCreateThumbnailWithMaxPixelSize", testCreateThumbnailWithMaxPixelSize),
-        ("testSaveImage", testSaveImage)
+        ("testSaveImage", testSaveImage),
+        ("testSaveImageInCustomFilenameAndDestinationURL", testSaveImageInCustomFilenameAndDestinationURL)
     ]
 
     // MARK: - Private Properties
@@ -161,6 +162,9 @@ extension SImageTests {
 
     func testSaveImage() {
         let saveImageExpectation = expectation(description: "Image saved successfully.")
+        let temporaryDirectory = FileManager.default.temporaryDirectory
+        let expectedImageFilename = SImageSettings.defaultImageFilename
+        let expectedImageURL = temporaryDirectory.appendingPathComponent(expectedImageFilename)
 
         Worker.doBackgroundWork { [weak self] in
             guard let self = self else {
@@ -172,10 +176,67 @@ extension SImageTests {
                 return
             }
 
-            let settings = SImageSettings(saveDestinationURL: self.resourcesPath)
-            SImage().save(image: image, settings: settings) { savedImageURL, error in
+            SImage().save(image: image) { url, error in
                 XCTAssertNil(error, "Could not save the image. 💥 Error: \(error ?? SImageError.unknownError).")
-                XCTAssertTrue(savedImageURL != nil, "Could not save the image.")
+                guard let savedImageURL = url else {
+                    XCTFail("The saved image URL is nil.")
+                    return
+                }
+
+                // Image file exists.
+                let imageExistsExpression = FileManager.default.fileExists(atPath: savedImageURL.path)
+                XCTAssertTrue(imageExistsExpression, "The image file could not be found at \(savedImageURL).")
+
+                // Expected URLs match.
+                let unexpectedURLMessage = """
+                    The image was not save in the expected temporary directory.
+                    Expected URL: \(expectedImageURL)
+                    Actual URL: \(savedImageURL)
+                """
+                XCTAssertEqual(savedImageURL, expectedImageURL, unexpectedURLMessage)
+
+                saveImageExpectation.fulfill()
+            }
+        }
+        waitForExpectations(timeout: 5, handler: nil)
+    }
+
+    func testSaveImageInCustomFilenameAndDestinationURL() {
+        let saveImageExpectation = expectation(description: "Image saved successfully in custom destination URL.")
+        let customFilename = "Custom_Filename.png"
+        let customDestinationURL = self.resourcesPath
+        let settings = SImageSettings(saveFilename: customFilename, saveDestinationURL: customDestinationURL)
+        let expectedImageURL = settings.saveDestinationURL
+
+        Worker.doBackgroundWork { [weak self] in
+            guard let self = self else {
+                XCTFail("Self is no more...")
+                return
+            }
+            guard let image = self.randomImage() else {
+                XCTFail("Could not retrieve a resource image.")
+                return
+            }
+
+            SImage().save(image: image, settings: settings) { url, error in
+                XCTAssertNil(error, "Could not save the image. 💥 Error: \(error ?? SImageError.unknownError).")
+                guard let savedImageURL = url else {
+                    XCTFail("The saved image URL is nil.")
+                    return
+                }
+
+                // Image file exists.
+                let imageExistsExpression = FileManager.default.fileExists(atPath: savedImageURL.path)
+                XCTAssertTrue(imageExistsExpression, "The image file could not be found at \(savedImageURL).")
+
+                // Expected URLs match.
+                let unexpectedURLMessage = """
+                    The image was not save in the expected temporary directory.
+                    Expected URL: \(settings)
+                    Actual URL: \(savedImageURL)
+                """
+                XCTAssertEqual(savedImageURL, expectedImageURL, unexpectedURLMessage)
+
                 saveImageExpectation.fulfill()
             }
         }
