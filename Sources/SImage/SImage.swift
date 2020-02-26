@@ -135,42 +135,24 @@ public extension SImage {
     ///
     /// - Parameters:
     ///   - image: `CGImage` to be saved.
-    ///   - destinationURL: Optional `URL` in which the given image should be saved.
-    ///   - settings: `SImageSettings` that stores thumbnail creation settings.
+    ///   - settings: `SImageSettings` that stores saving settings, such as filename and destination `URL`.
     ///   - completion: Block to be executed after the image is saved creation finishes. Returns optionals `URL` (where
     ///   the image was saved) and `SImageError`.
     func save(image: CGImage,
-              destinationURL: URL? = nil,
               settings: SImageSettings = SImageSettings(),
               completion: @escaping (URL?, SImageError?) -> Void) {
 
-        do {
-            // Image destination URL.
-            let imgDestinationURL: URL
-            if let givenURL = destinationURL {
-                imgDestinationURL = givenURL.appendingPathComponent(settings.saveFilename)
-            } else {
-                imgDestinationURL = try imageDestinationURL()
-            }
-
-            // Image destination.
-            guard let imgDestination = imageDestination(url: imgDestinationURL) else {
-                completion(nil, .cannotSaveImage)
-                return
-            }
-
-            // Persistence.
-            CGImageDestinationAddImage(imgDestination, image, nil)
-            guard CGImageDestinationFinalize(imgDestination) else {
-                completion(nil, .cannotSaveImage)
-                return
-            }
-
-            // Happy path.
-            completion(imgDestinationURL, nil)
-
-        } catch {
+        guard let imgDestination = imageDestination(url: settings.saveDestinationURL) else {
             completion(nil, .cannotSaveImage)
+            return
         }
+
+        CGImageDestinationAddImage(imgDestination, image, nil)
+        guard CGImageDestinationFinalize(imgDestination) else {
+            completion(nil, .cannotSaveImage)
+            return
+        }
+
+        completion(settings.saveDestinationURL, nil)
     }
 }

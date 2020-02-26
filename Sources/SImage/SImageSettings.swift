@@ -26,8 +26,7 @@ public struct SImageSettings {
     // MARK: - Save Image
 
     private(set) var saveFilename: String
-    private(set) var saveSearchPathDirectory: FileManager.SearchPathDirectory
-    private(set) var saveSearchPathDomainMask: FileManager.SearchPathDomainMask
+    private(set) var saveDestinationURL: URL
     private(set) var saveImageType: CFString
 
     // MARK: - Lifecycle
@@ -60,11 +59,9 @@ public struct SImageSettings {
     ///   by `maxPixelSize`. The default is `true`.
     ///   - thumbsMaxPixelSize: An optional maximum width or height in pixels of a thumbnail. The default is `nil`.
     ///
-    ///   - saveFilename: Used by `URL.appendingPathComponent(_:)` during image saving The default is `SImage.png`.
-    ///   - saveSearchPathDirectory: Used by `NSFileManager.url(for:in:appropriateFor:create:)` during image saving
-    ///   (it's the `for` parameter. The default is `.userDirectory`.
-    ///   - saveSearchPathDomainMask: Used by `NSFileManager.url(for:in:appropriateFor:create:)` during image saving
-    ///   (it's the `in` parameter. The default is `.userDomainMask`.
+    ///   - saveFilename: Used by `URL.appendingPathComponent(_:)` during image saving. The default is `SImage.png`.
+    ///   - saveDestinationURL: Optional `URL` in which the given image should be saved. The default points to
+    ///   the user's directory (`FileManager.SearchPathDirectory.userDirectory`).
     ///   - saveImageType: The UTI (uniform type identifier) of the resulting image file. Used by
     ///   `CGImageDestinationCreateWithURL(_:_:_:_:)` during image saving. The default is `.kUTTypePNG`.
     public init(targetOrientation: CGImagePropertyOrientation = .up,
@@ -77,8 +74,7 @@ public struct SImageSettings {
                 thumbsAlwaysFromImage: Bool = true,
                 thumbsMaxPixelSize: String? = nil,
                 saveFilename: String = "SImage.png",
-                saveSearchPathDirectory: FileManager.SearchPathDirectory = .userDirectory,
-                saveSearchPathDomainMask: FileManager.SearchPathDomainMask = .userDomainMask,
+                saveDestinationURL: URL? = nil,
                 saveImageType: CFString = kUTTypePNG) {
 
         self.targetOrientation = targetOrientation
@@ -93,8 +89,34 @@ public struct SImageSettings {
         self.thumbsMaxPixelSize = thumbsMaxPixelSize
 
         self.saveFilename = saveFilename
-        self.saveSearchPathDirectory = saveSearchPathDirectory
-        self.saveSearchPathDomainMask = saveSearchPathDomainMask
+        if let destinationURL = saveDestinationURL {
+            self.saveDestinationURL = destinationURL
+        } else {
+            self.saveDestinationURL = SImageSettings.defaultSaveDestinationURL()
+        }
+        self.saveDestinationURL.appendPathComponent(saveFilename)
         self.saveImageType = saveImageType
+    }
+}
+
+// MARK: - Private
+
+private extension SImageSettings {
+
+    /// Returns the default `URL` where the image is going to be saved. It points to the user's directory
+    /// (`FileManager.SearchPathDirectory.userDirectory`).
+    static func defaultSaveDestinationURL() -> URL {
+        guard let destinationURL = try? FileManager.default.url(
+            for: .userDirectory,
+            in: .userDomainMask,
+            appropriateFor: nil,
+            create: false
+            ) else {
+                // Should use `throws` or a failable initializer instead. But that would add another layer of complexity
+                // to callers, so it uses an empty URL for the time being. `SImage.save(image:settings:completion:)`
+                // will fail and return a `SImageError`.
+                return URL(fileURLWithPath: "")
+        }
+        return destinationURL
     }
 }

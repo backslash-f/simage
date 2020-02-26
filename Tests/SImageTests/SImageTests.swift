@@ -172,9 +172,10 @@ extension SImageTests {
                 return
             }
 
-            SImage().save(image: image, destinationURL: self.resourcesPath) { url, error in
+            let settings = SImageSettings(saveDestinationURL: self.resourcesPath)
+            SImage().save(image: image, settings: settings) { savedImageURL, error in
                 XCTAssertNil(error, "Could not save the image. 💥 Error: \(error ?? SImageError.unknownError).")
-                XCTAssertTrue(url != nil, "Could not save the image.")
+                XCTAssertTrue(savedImageURL != nil, "Could not save the image.")
                 saveImageExpectation.fulfill()
             }
         }

@@ -1,7 +1,7 @@
 import SwiftUI
 import Worker
 
-public extension SImage {
+internal extension SImage {
 
     /// Creates a `CGContext` to "draw" and "make" a `CGImage` using the given `RotatedImage`s. Distributes the images
     /// horizontally.
