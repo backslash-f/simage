@@ -59,7 +59,7 @@ public struct SImageSettings {
     ///   by `maxPixelSize`. The default is `true`.
     ///   - thumbsMaxPixelSize: An optional maximum width or height in pixels of a thumbnail. The default is `nil`.
     ///
-    ///   - saveFilename: Used by `URL.appendingPathComponent(_:)` during image saving. The default is `SImage.png`.
+    ///   - saveFilename: The image filename. The default is `SImage.png`. If overridden, the **file type** must be also provided. For example: "*MyDesiredName.png*".
     ///   - saveDestinationURL: Optional `URL` in which the given image should be saved. The default points to
     ///   the user's directory (`FileManager.SearchPathDirectory.userDirectory`).
     ///   - saveImageType: The UTI (uniform type identifier) of the resulting image file. Used by
