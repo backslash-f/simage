@@ -59,7 +59,7 @@ simage.createThumbnail(from: imageURL, settings: settings) { cgImage in
 ```
 
 ### Optional Settings
-To overwrite the default settings, it's possible to pass a custom `SImageSettings` instance as argument to the functions:
+To overwrite the default settings, it's possible to pass in a custom `SImageSettings` instance as argument to functions. For example:
 ```
 SImage.combineImages(source:👉🏻settings:👈🏻completion:)
 ```
