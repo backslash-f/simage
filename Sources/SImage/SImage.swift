@@ -130,8 +130,8 @@ public extension SImage {
         }
     }
 
-    /// Saves the given `CGImage` in the `userDirectory` as `SImage.png` (by default). These default options can be
-    /// overridden by passing in a custom `SImageSettings` instance or by passing a `URL` as arguments.
+    /// Saves the given `CGImage` as `SImage.png` in the `userDirectory` (by default). The default options can be
+    /// overridden by passing in a custom `SImageSettings` instance.
     ///
     /// - Parameters:
     ///   - image: `CGImage` to be saved.
