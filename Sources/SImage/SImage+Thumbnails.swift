@@ -1,6 +1,6 @@
 import SwiftUI
 
-public extension SImage {
+internal extension SImage {
 
     /// Creates thumbnail creation options to be used with `CGImageSourceCreateThumbnailAtIndex(_:_:_:)`, based on given
     /// `SImageSettings`.

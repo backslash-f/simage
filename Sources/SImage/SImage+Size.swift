@@ -1,6 +1,6 @@
 import SwiftUI
 
-public extension SImage {
+internal extension SImage {
 
     /// Applies the given `CGAffineTransform` to the gizen `CGSize` and returns a new `CGSize` as result.
     ///
