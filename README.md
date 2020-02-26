@@ -75,6 +75,11 @@ API | Description
 `SImage.context(for:settings:)` | Creates `CGContext` using given `CGSize` and `SImageSettings`. Returns: `CGContext`.
 `SImage.createImage(from:)` | Creates a `CGImage` from given `URL`. Returns: `CGImage`.
 `SImage.createThumbnail(from:settings:completion:)` | Creates a thumbnail from the image at the given `URL`. Returns: `CGImage`.
+`SImage.imageOrientation(from:)` | Returns the orientation (`CGImagePropertyOrientation`) of an image from the given `URL`.
+`SImage.imageProperties(from:)` | Returns all the available metadata of an image from the given `URL` as `CGImageProperty` (an `[AnyHashable: Any]` dictionary).
+`SImage.imageSize(from:)`| Returns the `CGSize` of an image from the given `URL`.
+`SImage.rotateImages(in:targetOrientation:completion:)` | Rotates images from the given source URL array if their orientation do not match with given target orientation. Returns an array of `RotatedImages` (a struct which contains the rotated `CGImage` and its new `CGSize`).
+`SImage.save(image:settings:completion:)` | Saves the given `CGImage` as "SImage.png" in the `userDirectory`. The default options (filename and destination `URL`) can be overridden by passing in a custom `SImageSettings` instance.
 
 ## Integration
 ### Xcode
