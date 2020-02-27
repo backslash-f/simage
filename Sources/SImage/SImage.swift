@@ -31,7 +31,7 @@ public extension SImage {
         }
         distributeImagesHorizontally(images: images) { result, error in
             guard let finalImage = result else {
-                completion(nil, error ?? SImageError.unknownError)
+                completion(nil, error ?? SImageError.unknownError(error))
                 return
             }
             completion(finalImage, nil)
@@ -53,12 +53,12 @@ public extension SImage {
                        completion: @escaping (CGImage?, SImageError?) -> Void) {
         rotateImages(in: urls, settings: settings) { result, error in
             guard let rotatedImages = result else {
-                completion(nil, SImageError.cannotRotateImage)
+                completion(nil, error)
                 return
             }
             self.distributeRotatedImagesHorizontally(rotatedImages: rotatedImages) { result, error in
                 guard let finalImage = result else {
-                    completion(nil, error ?? SImageError.unknownError)
+                    completion(nil, error ?? SImageError.unknownError(error))
                     return
                 }
                 completion(finalImage, nil)

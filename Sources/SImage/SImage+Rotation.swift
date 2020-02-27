@@ -73,7 +73,8 @@ public extension SImage {
                 }
                 completion(rotatedImages, nil)
             } catch {
-                completion(nil, error as? SImageError)
+                let simageError = (error as? SImageError) ?? SImageError.unknownError(error)
+                completion(nil, simageError)
             }
         }
     }

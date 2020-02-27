@@ -10,6 +10,7 @@ final class SImageTests: XCTestCase {
     static var allTests = [
         ("testCombineImages", testCombineImages),
         ("testCombineImagesFromURL", testCombineImagesFromURL),
+        ("testCombineImageNoOrientationInfoThrows", testCombineImageNoOrientationInfoThrows),
         ("testCreateCGImage", testCreateCGImage),
         ("testCreateCGImageFromMainThread", testCreateCGImageFromMainThread),
         ("testCreateThumbnail", testCreateThumbnail),
@@ -33,6 +34,80 @@ final class SImageTests: XCTestCase {
 // MARK: - Tests
 
 extension SImageTests {
+
+    /// Tests that an array of `CGImage` are combined via `SImage.combine(images:settings:completion:)`.
+    func testCombineImages() {
+        let combineExpectation = expectation(description: "Images combined successfully.")
+        var sourceImages = [CGImage]()
+
+        Worker.doBackgroundWork { [weak self] in
+            guard let self = self else {
+                XCTFail("Self is no more...")
+                return
+            }
+            for n in 0..<9 {
+                let imageURL = self.resourcesPath.appendingPathComponent(
+                    "\(self.imagePrefix)\(n).jpg",
+                    isDirectory: false
+                )
+                if let imageFromURL = try? SImage().createImage(from: imageURL) {
+                    sourceImages.append(imageFromURL)
+                }
+            }
+
+            SImage().combine(images: sourceImages) { image, error in
+                XCTAssertNil(error, "Could not save the image. 💥 Error: \(error ?? SImageError.unknownError(error)).")
+                guard let image = image else {
+                    XCTFail("Could not combine the images.")
+                    return
+                }
+                XCTAssertTrue(image.height == 1800, "Invalid height: \(image.height).")
+                XCTAssertTrue(image.width == 13200, "Invalid height: \(image.width).")
+                combineExpectation.fulfill()
+            }
+        }
+        waitForExpectations(timeout: 5, handler: nil)
+    }
+
+    /// Tests that images are combined via image `URL`s (`SImage.combineImages(source:settings:completion:)`).
+    func testCombineImagesFromURL() {
+        let combineExpectation = expectation(description: "Images combined successfully.")
+        let imageURLs = imageSourceURLs()
+
+        SImage().combineImages(source: imageURLs) { image, error in
+            XCTAssertNil(error, "Could not save the image. 💥 Error: \(error ?? SImageError.unknownError(error)).")
+            guard let image = image else {
+                XCTFail("Could not combine the images.")
+                return
+            }
+            XCTAssertTrue(image.height == 1800, "Invalid height: \(image.height).")
+            XCTAssertTrue(image.width == 10800, "Invalid height: \(image.width).")
+            combineExpectation.fulfill()
+        }
+        waitForExpectations(timeout: 5, handler: nil)
+    }
+
+    /// Tests combining images when one of them doesn't have orientation info. In this scenario, an error is expected.
+    func testCombineImageNoOrientationInfoThrows() {
+        let cantCombineExpectation = expectation(description: "Can't combine images: no orientation info.")
+        let imageURLs = [randomImageURL(), noOrientationImageURL()]
+
+        Worker.doBackgroundWork {
+            SImage().combineImages(source: imageURLs) { image, error in
+                XCTAssertNil(image, "Expected the result image to be nil.")
+                guard let simageError = error else {
+                    XCTFail("Expected an error, got nil instead.")
+                    return
+                }
+                guard case SImageError.cannotGetImageOrientation = simageError else {
+                    XCTFail("Expected \"SImageError.cannotGetImageOrientation\" but \"\(simageError)\" was threw.")
+                    return
+                }
+                cantCombineExpectation.fulfill()
+            }
+        }
+        waitForExpectations(timeout: 5, handler: nil)
+    }
 
     /// Tests that a `CGImage` can be created from a (valid) image `URL`.
     func testCreateCGImage() {
@@ -70,55 +145,6 @@ extension SImageTests {
             }
         }
         waitForExpectations(timeout: 1, handler: nil)
-    }
-
-    /// Tests that images are combined via image `URL`s (`SImage.combineImages(source:settings:completion:)`).
-    func testCombineImagesFromURL() {
-        let combineExpectation = expectation(description: "Images combined successfully.")
-        let imageURLs = imageSourceURLs()
-
-        SImage().combineImages(source: imageURLs) { image, error in
-            XCTAssertNil(error, "Could not save the image. 💥 Error: \(error ?? SImageError.unknownError).")
-            guard let image = image else {
-                XCTFail("Could not combine the images.")
-                return
-            }
-            XCTAssertTrue(image.height == 1800, "Invalid height: \(image.height).")
-            XCTAssertTrue(image.width == 10800, "Invalid height: \(image.width).")
-            combineExpectation.fulfill()
-        }
-        waitForExpectations(timeout: 5, handler: nil)
-    }
-
-    /// Tests that an array of `CGImage` are combined via `SImage.combine(images:settings:completion:)`.
-    func testCombineImages() {
-        let combineExpectation = expectation(description: "Images combined successfully.")
-        var sourceImages = [CGImage]()
-
-        Worker.doBackgroundWork { [weak self] in
-            guard let self = self else {
-                XCTFail("Self is no more...")
-                return
-            }
-            for n in 0..<9 {
-                let imageURL = self.resourcesPath.appendingPathComponent("\(self.imagePrefix)\(n).jpg", isDirectory: false)
-                if let imageFromURL = try? SImage().createImage(from: imageURL) {
-                    sourceImages.append(imageFromURL)
-                }
-            }
-
-            SImage().combine(images: sourceImages) { image, error in
-                XCTAssertNil(error, "Could not save the image. 💥 Error: \(error ?? SImageError.unknownError).")
-                guard let image = image else {
-                    XCTFail("Could not combine the images.")
-                    return
-                }
-                XCTAssertTrue(image.height == 1800, "Invalid height: \(image.height).")
-                XCTAssertTrue(image.width == 13200, "Invalid height: \(image.width).")
-                combineExpectation.fulfill()
-            }
-        }
-        waitForExpectations(timeout: 5, handler: nil)
     }
 
     /// Tests that a thumbnail is created via `SImage.createThumbnail(from:settings:completion:)`.
@@ -177,7 +203,7 @@ extension SImageTests {
             }
 
             SImage().save(image: image) { url, error in
-                XCTAssertNil(error, "Could not save the image. 💥 Error: \(error ?? SImageError.unknownError).")
+                XCTAssertNil(error, "Could not save the image. 💥 Error: \(error ?? SImageError.unknownError(error)).")
                 guard let savedImageURL = url else {
                     XCTFail("The saved image URL is nil.")
                     return
@@ -189,9 +215,9 @@ extension SImageTests {
 
                 // Expected URLs match.
                 let unexpectedURLMessage = """
-                    The image was not save in the expected temporary directory.
-                    Expected URL: \(expectedImageURL)
-                    Actual URL: \(savedImageURL)
+                The image was not save in the expected temporary directory.
+                Expected URL: \(expectedImageURL)
+                Actual URL: \(savedImageURL)
                 """
                 XCTAssertEqual(savedImageURL, expectedImageURL, unexpectedURLMessage)
 
@@ -219,7 +245,7 @@ extension SImageTests {
             }
 
             SImage().save(image: image, settings: settings) { url, error in
-                XCTAssertNil(error, "Could not save the image. 💥 Error: \(error ?? SImageError.unknownError).")
+                XCTAssertNil(error, "Could not save the image. 💥 Error: \(error ?? SImageError.unknownError(error)).")
                 guard let savedImageURL = url else {
                     XCTFail("The saved image URL is nil.")
                     return
@@ -231,9 +257,9 @@ extension SImageTests {
 
                 // Expected URLs match.
                 let unexpectedURLMessage = """
-                    The image was not save in the expected temporary directory.
-                    Expected URL: \(settings)
-                    Actual URL: \(savedImageURL)
+                The image was not save in the expected temporary directory.
+                Expected URL: \(settings)
+                Actual URL: \(savedImageURL)
                 """
                 XCTAssertEqual(savedImageURL, expectedImageURL, unexpectedURLMessage)
 
@@ -248,6 +274,21 @@ extension SImageTests {
 
 private extension SImageTests {
 
+    /// Retrieves the URL for all test images, from "image_0" to "image_8". Returns it in an `[URL]`.
+    func imageSourceURLs() -> [URL] {
+        var sourceURLs = [URL]()
+        for n in 0..<9 {
+            let imageURL = resourcesPath.appendingPathComponent("\(imagePrefix)\(n).jpg", isDirectory: false)
+            sourceURLs.append(imageURL)
+        }
+        return sourceURLs
+    }
+
+    /// Retrieves a `URL` of a `CGImage` that has no orientation information.
+    func noOrientationImageURL() -> URL {
+        return resourcesPath.appendingPathComponent("no_orientation.png", isDirectory: false)
+    }
+
     /// Retrieves a random `CGImage`.
     func randomImage() -> CGImage? {
         return try? SImage().createImage(from: randomImageURL())
@@ -258,15 +299,5 @@ private extension SImageTests {
         let randomImageNumber = (0..<9).randomElement() ?? 0
         let imageName = "\(imagePrefix)\(randomImageNumber).jpg"
         return resourcesPath.appendingPathComponent(imageName, isDirectory: false)
-    }
-
-    /// Retrieves the URL for all test images, from "image_0" to "image_8". Returns it in an `[URL]`.
-    func imageSourceURLs() -> [URL] {
-        var sourceURLs = [URL]()
-        for n in 0..<9 {
-            let imageURL = resourcesPath.appendingPathComponent("\(imagePrefix)\(n).jpg", isDirectory: false)
-            sourceURLs.append(imageURL)
-        }
-        return sourceURLs
     }
 }

@@ -13,5 +13,5 @@ public enum SImageError: Error {
     case cannotSaveImage
     case invalidHeight
     case invalidNumberOfImages
-    case unknownError
+    case unknownError(_ error: Error?)
 }
