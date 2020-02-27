@@ -18,6 +18,7 @@ public struct SImageSettings {
     // MARK: - Rotation
 
     private(set) var rotationTargetOrientation: CGImagePropertyOrientation
+    private(set) var rotationIgnoreMissingMetadata: Bool
 
     // MARK: - Context
 
@@ -50,6 +51,12 @@ public struct SImageSettings {
     /// - Parameters:
     ///   - rotationTargetOrientation: In a rotation operation, defines the desired orientation for an image. Default is
     ///   `.up`.
+    ///   - rotationIgnoreMissingMetadata: Some images may not have rotation information in its metadata. When
+    ///   `SImage.rotateImages(in:settings:completion:)` encounters those type of images, it may throw (`SImageError.cannotGetImageOrientation(from:)`). If you want to ignore missing rotation information and just
+    ///   proceed to the next image, set this property to `true`. If you want to stop the rotation operation when there
+    ///   is no rotation information available, set it to `false`. The default is `true` (missing rotation information
+    ///   is ignored. **Notice that the image itself won't be skipped -- it will be included in the result image, but
+    ///   "untouched" (not rotated)**).
     ///
     ///   - contextBitsPerComponent: The number of bits to use for each component of a pixel in memory when creating a
     ///   new `CGContext`. Default is `8`.
@@ -78,6 +85,7 @@ public struct SImageSettings {
     ///   - saveImageType: The UTI (uniform type identifier) of the resulting image file. Used by
     ///   `CGImageDestinationCreateWithURL(_:_:_:_:)` during image saving. The default is `.kUTTypePNG`.
     public init(rotationTargetOrientation: CGImagePropertyOrientation = .up,
+                rotationIgnoreMissingMetadata: Bool = true,
                 contextBitsPerComponent: Int = 8,
                 contextBytesPerRow: Int = 0,
                 contextColorSpace: CGColorSpace = CGColorSpaceCreateDeviceRGB(),
@@ -91,6 +99,8 @@ public struct SImageSettings {
                 saveImageType: CFString = kUTTypePNG) {
 
         self.rotationTargetOrientation = rotationTargetOrientation
+        self.rotationIgnoreMissingMetadata = rotationIgnoreMissingMetadata
+
         self.contextBitsPerComponent = contextBitsPerComponent
         self.contextBytesPerRow = contextBytesPerRow
         self.contextColorSpace = contextColorSpace

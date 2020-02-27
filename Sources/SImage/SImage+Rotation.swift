@@ -27,7 +27,7 @@ public extension SImage {
     ///
     /// - Parameters:
     ///   - source: An array of `URL`s from which the images to be rotated (and its metadata) can be extracted.
-    ///   - settings: `SImageSettings` that stores combination / rotation settings.
+    ///   - settings: `SImageSettings` instance that stores rotation settings.
     ///   - completion: Block to be executed when the operation finishes. Carries the optional arguments
     ///   `[RotatedImage]`and `SImageError`.
     func rotateImages(in source: [URL],
@@ -41,18 +41,24 @@ public extension SImage {
         Worker.doBackgroundWork {
             do {
                 for url in source {
-                    // Create image and extract its metadata.
+                    // Create image.
                     let image = try self.createImage(from: url)
-                    let currentOrientation = try self.imageOrientation(from: url)
-                    let currentSize = try self.imageSize(from: url)
+
+                    /// Extract its metadata.
+                    let imageSize = try self.imageSize(from: url)
+                    let imageOrientation = settings.rotationIgnoreMissingMetadata ?
+                        try? self.imageOrientation(from: url) : // Orientation may be nil.
+                        try self.imageOrientation(from: url)    // Function may throw.
 
                     // Determine if the image needs to be rotated.
-                    guard (currentOrientation.rawValue != 0)
-                        && (currentOrientation != settings.rotationTargetOrientation) else {
+                    guard let currentOrientation = imageOrientation,
+                        (currentOrientation.rawValue != 0)
+                            && (currentOrientation != settings.rotationTargetOrientation) else {
                         // If rotation is not needed, store the image to be returned "untouched".
-                        rotatedImages.append(RotatedImage(image: image, size: currentSize))
+                        rotatedImages.append(RotatedImage(image: image, size: imageSize))
                         continue
                     }
+
                     // Define the rotation parameters.
                     let parameters = self.rotationParameters(from: currentOrientation,
                                                              to: settings.rotationTargetOrientation)
@@ -60,7 +66,7 @@ public extension SImage {
                     let transformation = CGAffineTransform(rotationAngle: CGFloat(rotationAngle))
 
                     // Rotate the context.
-                    let newSize = self.size(for: transformation, on: currentSize)
+                    let newSize = self.size(for: transformation, on: imageSize)
                     var newContext = try self.context(for: newSize)
                     self.rotate(context: &newContext, size: newSize, rotationAngle: rotationAngle)
 
@@ -68,7 +74,7 @@ public extension SImage {
                     self.handleMirroredImages(with: parameters, context: &newContext)
 
                     // Create and store the rotated image to be returned.
-                    let rotatedImage = try self.drawAndMake(rotatedImage: image, context: newContext, size: currentSize)
+                    let rotatedImage = try self.drawAndMake(rotatedImage: image, context: newContext, size: imageSize)
                     rotatedImages.append(RotatedImage(image: rotatedImage, size: newSize))
                 }
                 completion(rotatedImages, nil)

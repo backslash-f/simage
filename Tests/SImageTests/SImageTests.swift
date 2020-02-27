@@ -10,7 +10,8 @@ final class SImageTests: XCTestCase {
     static var allTests = [
         ("testCombineImages", testCombineImages),
         ("testCombineImagesFromURL", testCombineImagesFromURL),
-        ("testCombineImageNoOrientationInfoThrows", testCombineImageNoOrientationInfoThrows),
+        ("testCombineImagesNoOrientationInfoThrows", testCombineImagesNoOrientationInfoThrows),
+        ("testCombineImagesNoOrientationInfo", testCombineImagesNoOrientationInfo),
         ("testCreateCGImage", testCreateCGImage),
         ("testCreateCGImageFromMainThread", testCreateCGImageFromMainThread),
         ("testCreateThumbnail", testCreateThumbnail),
@@ -87,13 +88,35 @@ extension SImageTests {
         waitForExpectations(timeout: 5, handler: nil)
     }
 
-    /// Tests combining images when one of them doesn't have orientation info. In this scenario, an error is expected.
-    func testCombineImageNoOrientationInfoThrows() {
-        let cantCombineExpectation = expectation(description: "Can't combine images: no orientation info.")
+    /// Tests combining images when one of them doesn't have orientation info.
+    /// Using the default `SImageSettings`, the images must be successfully combined.
+    func testCombineImagesNoOrientationInfo() {
+        let combineExpectation = expectation(description: "Images combined successfully.")
         let imageURLs = [randomImageURL(), noOrientationImageURL()]
 
         Worker.doBackgroundWork {
             SImage().combineImages(source: imageURLs) { image, error in
+                XCTAssertNil(error, "Could not save the image. 💥 Error: \(error ?? SImageError.unknownError(error)).")
+                guard let image = image else {
+                    XCTFail("Could not combine the images.")
+                    return
+                }
+                XCTAssertTrue(image.height > 0, "Invalid height: \(image.height).")
+                XCTAssertTrue(image.width > 0, "Invalid height: \(image.width).")
+                combineExpectation.fulfill()
+            }
+        }
+        waitForExpectations(timeout: 5, handler: nil)
+    }
+
+    /// Tests combining images when one of them doesn't have orientation info. In this scenario, an error is expected.
+    func testCombineImagesNoOrientationInfoThrows() {
+        let cantCombineExpectation = expectation(description: "Can't combine images: no orientation info.")
+        let imageURLs = [randomImageURL(), noOrientationImageURL()]
+        let settings = SImageSettings(rotationIgnoreMissingMetadata: false)
+
+        Worker.doBackgroundWork {
+            SImage().combineImages(source: imageURLs, settings: settings) { image, error in
                 XCTAssertNil(image, "Expected the result image to be nil.")
                 guard let simageError = error else {
                     XCTFail("Expected an error, got nil instead.")
