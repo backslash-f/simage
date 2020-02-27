@@ -51,7 +51,7 @@ public extension SImage {
     func combineImages(source urls: [URL],
                        settings: SImageSettings = SImageSettings(),
                        completion: @escaping (CGImage?, SImageError?) -> Void) {
-        rotateImages(in: urls, targetOrientation: settings.targetOrientation) { result, error in
+        rotateImages(in: urls, settings: settings) { result, error in
             guard let rotatedImages = result else {
                 completion(nil, SImageError.cannotRotateImage)
                 return

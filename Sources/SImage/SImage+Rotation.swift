@@ -27,11 +27,11 @@ public extension SImage {
     ///
     /// - Parameters:
     ///   - source: An array of `URL`s from which the images to be rotated (and its metadata) can be extracted.
-    ///   - targetOrientation: The desired `CGImagePropertyOrientation`. E.g.: `.up`
+    ///   - settings: `SImageSettings` that stores combination / rotation settings.
     ///   - completion: Block to be executed when the operation finishes. Carries the optional arguments
     ///   `[RotatedImage]`and `SImageError`.
     func rotateImages(in source: [URL],
-                      targetOrientation: CGImagePropertyOrientation,
+                      settings: SImageSettings,
                       completion: @escaping ([RotatedImage]?, SImageError?) -> Void) {
         guard source.count > 1 else {
             completion(nil, SImageError.invalidNumberOfImages)
@@ -47,13 +47,15 @@ public extension SImage {
                     let currentSize = try self.imageSize(from: url)
 
                     // Determine if the image needs to be rotated.
-                    guard (currentOrientation.rawValue != 0) && (currentOrientation != targetOrientation) else {
-                        // If not, store the image to be returned "untouched".
+                    guard (currentOrientation.rawValue != 0)
+                        && (currentOrientation != settings.rotationTargetOrientation) else {
+                        // If rotation is not needed, store the image to be returned "untouched".
                         rotatedImages.append(RotatedImage(image: image, size: currentSize))
                         continue
                     }
                     // Define the rotation parameters.
-                    let parameters = self.rotationParameters(from: currentOrientation, to: targetOrientation)
+                    let parameters = self.rotationParameters(from: currentOrientation,
+                                                             to: settings.rotationTargetOrientation)
                     let rotationAngle = parameters.rotationAngle
                     let transformation = CGAffineTransform(rotationAngle: CGFloat(rotationAngle))
 

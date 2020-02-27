@@ -15,7 +15,12 @@ public struct SImageSettings {
 
     // MARK: - Private Properties
 
-    private(set) var targetOrientation: CGImagePropertyOrientation
+    // MARK: - Rotation
+
+    private(set) var rotationTargetOrientation: CGImagePropertyOrientation
+
+    // MARK: - Context
+
     private(set) var contextBitsPerComponent: Int
     private(set) var contextBytesPerRow: Int
     private(set) var contextColorSpace: CGColorSpace
@@ -43,7 +48,9 @@ public struct SImageSettings {
     /// `contextBitmapInfo`, see [Graphics Contexts](https://apple.co/34YaDZJ).
     ///
     /// - Parameters:
-    ///   - targetOrientation: In a rotation operation, defines the desired orientation for an image. Default is `.up`.
+    ///   - rotationTargetOrientation: In a rotation operation, defines the desired orientation for an image. Default is
+    ///   `.up`.
+    ///
     ///   - contextBitsPerComponent: The number of bits to use for each component of a pixel in memory when creating a
     ///   new `CGContext`. Default is `8`.
     ///   - contextBytesPerRow: The number of bytes of memory to use per row of the bitmap when creating a new
@@ -70,7 +77,7 @@ public struct SImageSettings {
     ///   `saveFilename`. The default points to the temporary directory for the current user.
     ///   - saveImageType: The UTI (uniform type identifier) of the resulting image file. Used by
     ///   `CGImageDestinationCreateWithURL(_:_:_:_:)` during image saving. The default is `.kUTTypePNG`.
-    public init(targetOrientation: CGImagePropertyOrientation = .up,
+    public init(rotationTargetOrientation: CGImagePropertyOrientation = .up,
                 contextBitsPerComponent: Int = 8,
                 contextBytesPerRow: Int = 0,
                 contextColorSpace: CGColorSpace = CGColorSpaceCreateDeviceRGB(),
@@ -83,7 +90,7 @@ public struct SImageSettings {
                 saveDestinationURL: URL = FileManager.default.temporaryDirectory,
                 saveImageType: CFString = kUTTypePNG) {
 
-        self.targetOrientation = targetOrientation
+        self.rotationTargetOrientation = rotationTargetOrientation
         self.contextBitsPerComponent = contextBitsPerComponent
         self.contextBytesPerRow = contextBytesPerRow
         self.contextColorSpace = contextColorSpace
