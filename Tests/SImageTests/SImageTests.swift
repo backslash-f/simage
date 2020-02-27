@@ -75,7 +75,7 @@ extension SImageTests {
         let combineExpectation = expectation(description: "Images combined successfully.")
         let imageURLs = imageSourceURLs()
 
-        SImage().combineImages(source: imageURLs) { image, error in
+        SImage().combineImages(from: imageURLs) { image, error in
             XCTAssertNil(error, "Could not save the image. 💥 Error: \(error ?? SImageError.unknownError(error)).")
             guard let image = image else {
                 XCTFail("Could not combine the images.")
@@ -95,7 +95,7 @@ extension SImageTests {
         let imageURLs = [randomImageURL(), noOrientationImageURL()]
 
         Worker.doBackgroundWork {
-            SImage().combineImages(source: imageURLs) { image, error in
+            SImage().combineImages(from: imageURLs) { image, error in
                 XCTAssertNil(error, "Could not save the image. 💥 Error: \(error ?? SImageError.unknownError(error)).")
                 guard let image = image else {
                     XCTFail("Could not combine the images.")
@@ -116,7 +116,7 @@ extension SImageTests {
         let settings = SImageSettings(rotationIgnoreMissingMetadata: false)
 
         Worker.doBackgroundWork {
-            SImage().combineImages(source: imageURLs, settings: settings) { image, error in
+            SImage().combineImages(from: imageURLs, settings: settings) { image, error in
                 XCTAssertNil(image, "Expected the result image to be nil.")
                 guard let simageError = error else {
                     XCTFail("Expected an error, got nil instead.")

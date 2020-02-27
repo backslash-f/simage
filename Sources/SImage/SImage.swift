@@ -18,7 +18,7 @@ public extension SImage {
     /// relies on the image metadata, which may not be present in a `CGImage` instance.
     ///
     /// - Parameters:
-    ///   - urls: array of `CGImage` representing the images to be combined.
+    ///   - images: array of `CGImage` representing the images to be combined.
     ///   - settings: `SImageSettings` that stores combination / `CGContext` creation settings.
     ///   - completion: Code to be executed after the operations finished. Returns optionals `CGImage` and
     ///   `SImageError`.
@@ -48,10 +48,10 @@ public extension SImage {
     ///   - settings: `SImageSettings` that stores combination / `CGContext` creation settings.
     ///   - completion: Code to be executed after the operations finished. Returns optionals `CGImage` and
     ///   `SImageError`.
-    func combineImages(source urls: [URL],
+    func combineImages(from urls: [URL],
                        settings: SImageSettings = SImageSettings(),
                        completion: @escaping (CGImage?, SImageError?) -> Void) {
-        rotateImages(in: urls, settings: settings) { result, error in
+        rotateImages(from: urls, settings: settings) { result, error in
             guard let rotatedImages = result else {
                 completion(nil, error)
                 return

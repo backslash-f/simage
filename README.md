@@ -22,7 +22,7 @@ Suppose you would like to combine the following images:
 ```swift
 let imageURLs = [URL] // Suppose this URL array points to the above images.
 
-SImage().combineImages(source: imageURLs) { cgImage, error in
+SImage().combineImages(from: imageURLs) { cgImage, error in
     if let resultImage = cgImage {
         // Do whatever with the result image.
     }
@@ -61,24 +61,27 @@ simage.createThumbnail(from: imageURL, settings: settings) { cgImage in
 ### Optional Settings
 To overwrite the default settings, it's possible to pass in a custom `SImageSettings` instance as argument to functions. For example:
 ```
-SImage.combineImages(source:👉🏻settings:👈🏻completion:)
+SImage.combineImages(from:👉🏻settings:👈🏻completion:)
 ```
 ```
 SImage.createThumbnail(from:👉🏻settings:👈🏻completion:)
+```
+```
+SImage.rotateImages(from:👉🏻settings👈🏻:completion:)
 ```
 
 ## Available APIs
 API | Description
 --- | -----------
 `SImage.combine(images:settings:completion:)` | Combines given images using given `SImageSettings`. **Does not** fix orientation. Returns: `CGImage`.
-`SImage.combineImages(source:settings:completion:)` | Combines the images in the given array of `URL` using given `SImageSettings`. **Fixes orientation**. Returns: `CGImage`. 
+`SImage.combineImages(from:settings:completion:)` | Combines the images in the given array of `URL` using given `SImageSettings`. **Fixes orientation** (when possible). Returns: `CGImage`.
 `SImage.context(for:settings:)` | Creates `CGContext` using given `CGSize` and `SImageSettings`. Returns: `CGContext`.
 `SImage.createImage(from:)` | Creates a `CGImage` from given `URL`. Returns: `CGImage`.
 `SImage.createThumbnail(from:settings:completion:)` | Creates a thumbnail from the image at the given `URL`. Returns: `CGImage`.
 `SImage.imageOrientation(from:)` | Returns the orientation (`CGImagePropertyOrientation`) of an image from the given `URL`.
 `SImage.imageProperties(from:)` | Returns all the available metadata of an image from the given `URL` as `CGImageProperty` (an `[AnyHashable: Any]` dictionary).
 `SImage.imageSize(from:)`| Returns the `CGSize` of an image from the given `URL`.
-`SImage.rotateImages(in:targetOrientation:completion:)` | Rotates images from the given source URL array if their orientation do not match with given target orientation. Returns an array of `RotatedImages` (a struct which contains the rotated `CGImage` and its new `CGSize`).
+`SImage.rotateImages(from:settings:completion:)` | Rotates images from the given `URL` array if their orientation do not match with the target orientation in the settings parameter. Returns an array of `RotatedImages` (a struct which contains the rotated `CGImage` and its new `CGSize`). Notice: some images may not have rotation information in its metadata. When SImage.rotateImages(in:settings:completion:) encounters those type of images, it may throw (SImageError.cannotGetImageOrientation(from:)). To ignore missing rotation information and just proceed to the next image, set `rotationIgnoreMissingMetadata` in the settings parameter to `true` (default value).
 `SImage.save(image:settings:completion:)` | Saves the given `CGImage` as "SImage.png" in the temporary directory of the current user (`FileManager.default.temporaryDirectory`). The default options (filename, file type and destination `URL`) can be overridden by passing in a custom `SImageSettings` instance.
 
 ## Integration

@@ -26,21 +26,21 @@ public extension SImage {
     ///  main thread but `DispatchQueue.global(qos: .userInitiated).async`.
     ///
     /// - Parameters:
-    ///   - source: An array of `URL`s from which the images to be rotated (and its metadata) can be extracted.
+    ///   - urls: An array of `URL`s from which the images to be rotated (and its metadata) can be extracted.
     ///   - settings: `SImageSettings` instance that stores rotation settings.
     ///   - completion: Block to be executed when the operation finishes. Carries the optional arguments
     ///   `[RotatedImage]`and `SImageError`.
-    func rotateImages(in source: [URL],
+    func rotateImages(from urls: [URL],
                       settings: SImageSettings,
                       completion: @escaping ([RotatedImage]?, SImageError?) -> Void) {
-        guard source.count > 1 else {
+        guard urls.count > 1 else {
             completion(nil, SImageError.invalidNumberOfImages)
             return
         }
         var rotatedImages = [RotatedImage]()
         Worker.doBackgroundWork {
             do {
-                for url in source {
+                for url in urls {
                     // Create image.
                     let image = try self.createImage(from: url)
 
