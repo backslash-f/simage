@@ -24,5 +24,6 @@ let package = Package(
         .testTarget(
             name: "SImageTests",
             dependencies: ["SImage"]),
-    ]
+    ],
+    swiftLanguageVersions: [.v5]
 )
