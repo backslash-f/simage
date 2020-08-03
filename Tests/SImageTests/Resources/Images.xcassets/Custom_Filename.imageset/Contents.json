@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "Custom_Filename.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
