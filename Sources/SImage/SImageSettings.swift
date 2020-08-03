@@ -1,4 +1,5 @@
-import SwiftUI
+import Foundation
+import ImageIO
 
 #if !os(macOS)
 import MobileCoreServices

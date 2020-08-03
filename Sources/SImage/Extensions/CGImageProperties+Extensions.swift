@@ -1,4 +1,4 @@
-import SwiftUI
+import ImageIO
 
 /// Dictionary that stores `CGImageProperty`s and can be used in conjunction with `CGImagePropertyKey`.
 /// For example: `[CGImagePropertyKey.width: 200]`.

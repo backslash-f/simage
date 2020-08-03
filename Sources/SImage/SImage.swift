@@ -1,4 +1,5 @@
-import SwiftUI
+import Foundation
+import ImageIO
 import Worker
 
 /// Wrapper around `Core Graphics` that can provide functionalities such as image combination, image rotation, etc.

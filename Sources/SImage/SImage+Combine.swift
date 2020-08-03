@@ -1,4 +1,4 @@
-import SwiftUI
+import ImageIO
 import Worker
 
 internal extension SImage {

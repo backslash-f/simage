@@ -1,4 +1,5 @@
-import SwiftUI
+import Foundation
+import ImageIO
 import Worker
 
 /// Represents an image that was processed by the `SImage.rotateImages` function. Stores the image itself (`CGImage`)
