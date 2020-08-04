@@ -84,6 +84,27 @@ API | Description
 `SImage.rotateImages(from:settings:completion:)` | Rotates images from the given `URL` array if their orientation do not match with the target orientation in the settings parameter. Returns an array of `RotatedImages` (a struct which contains the rotated `CGImage` and its new `CGSize`). Notice: some images may not have rotation information in its metadata. When SImage.rotateImages(in:settings:completion:) encounters those type of images, it may throw (SImageError.cannotGetImageOrientation(from:)). To ignore missing rotation information and just proceed to the next image, set `rotationIgnoreMissingMetadata` in the settings parameter to `true` (default value).
 `SImage.save(image:settings:completion:)` | Saves the given `CGImage` as "SImage.png" in the temporary directory of the current user (`FileManager.default.temporaryDirectory`). The default options (filename, file type and destination `URL`) can be overridden by passing in a custom `SImageSettings` instance.
 
+## Logging
+Starting with version 2.0.0, `SImage` can output its information into *Xcode's Console* or the *macOS Console app*.  
+This behavior can be enabled or disabled as such:
+```swift
+var simage = SImage()
+simage.enableLogging()
+simage.disableLogging()
+```
+In the **macOS Console app**, you can filter `SImage` output by `SUBSYSTEM`: `com.backslash-f.SImage`:
+
+<img src="https://i.imgur.com/rExAwtl.png">
+
+The logging is done via [AppLogger](https://github.com/backslash-f/applogger), which supports the following versions:
+
+- iOS 14+
+- macOS 11+ (BigSur+)
+- Mac Catalyst 14.0+
+- tvOS 14+
+- watchOS 7+
+- Xcode 12.0+
+
 ## Integration
 ### Xcode
 Use Xcode's [built-in support for SPM](https://developer.apple.com/documentation/xcode/adding_package_dependencies_to_your_app) (`File / Swift Packages / Add Package Dependency`).
@@ -92,7 +113,7 @@ Use Xcode's [built-in support for SPM](https://developer.apple.com/documentation
 In your `Package.swift`, add `SImage` as a dependency:
 ```swift
 dependencies: [
-  .package(url: "https://github.com/backslash-f/simage", from: "1.0.0")
+  .package(url: "https://github.com/backslash-f/simage", from: "2.0.0")
 ],
 ```
 
