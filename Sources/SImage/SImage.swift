@@ -6,14 +6,9 @@ import Worker
 /// Because it relies on Core Graphics, it's multi-platform. It can run in macOS, iOS, iPadOS, tvOS, watchOS.
 public struct SImage {
 
-    // MARK: - Properties
+    // MARK: - Private Properties
 
-    /// Set it to `true` in order to see  logging information in Xcode's Console or
-    /// in the macOS Console app.
-    ///
-    /// In the Console app, you can filter SImage's output by `SUBSYSTEM`:
-    /// `com.backslash-f.SImage`.
-    public var isLoggingEnabled = false
+    private(set) var isLoggingEnabled = false
 
     // MARK: - Lifecycle
 
@@ -23,6 +18,21 @@ public struct SImage {
 // MARK: - Interface
 
 public extension SImage {
+
+    /// Enables logging information via `AppLogger`.
+    ///
+    /// When logging is enabled, the output will be available in *Xcode's Console* or
+    /// in the *macOS Console app*.
+    ///
+    /// In the **macOS Console app**, you can filter SImage's output by `SUBSYSTEM`: `com.backslash-f.SImage`.
+    mutating func enableLogging() {
+        isLoggingEnabled = true
+    }
+
+    /// Disables logging information via `AppLogger`.
+    mutating func disableLogging() {
+        isLoggingEnabled = false
+    }
 
     /// Combines the given images using settings from the given `SImageSettings`.
     ///

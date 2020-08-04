@@ -26,7 +26,8 @@ extension SImage {
     ///   - category: A member of the `SImageLoggingCategory` enum.
     func log(_ information: String, category: SImageLoggingCategory) {
         guard isLoggingEnabled else { return }
-        let logger = AppLogger(subsystem: AppLogger.Defaults.subsystem, category: category.rawValue)
+        let simageSubsystem = "com.backslash-f.SImage"
+        let logger = AppLogger(subsystem: simageSubsystem, category: category.rawValue)
         logger.log(information)
     }
 
@@ -34,6 +35,6 @@ extension SImage {
     ///
     /// - Parameter error: A member of the `SImageError` enum.
     func log(_ error: SImageError) {
-        log("SImage error: \(error)", category: .error)
+        log("SImage's error: \(error)", category: .error)
     }
 }
