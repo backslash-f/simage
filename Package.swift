@@ -1,13 +1,14 @@
-// swift-tools-version:5.1
+// swift-tools-version:5.3
 
 import PackageDescription
 
 let package = Package(
     name: "SImage",
     platforms: [
-        // Minimum required versions due to "FileManager.default.temporaryDirectory"
-        .iOS(.v12),
-        .macOS(.v10_12)
+        .iOS(.v14),
+        .macOS(.v11),
+        .tvOS(.v14),
+        .watchOS(.v7)
     ],
     products: [
         .library(
@@ -15,15 +16,16 @@ let package = Package(
             targets: ["SImage"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/backslash-f/worker", from: "1.0.0")
+        .package(name: "Worker", url: "https://github.com/backslash-f/worker", from: "1.0.0"),
+        .package(name: "AppLogger", url: "https://github.com/backslash-f/applogger", from: "1.0.0")
     ],
     targets: [
         .target(
             name: "SImage",
-            dependencies: ["Worker"]),
+            dependencies: ["Worker", "AppLogger"]),
         .testTarget(
             name: "SImageTests",
-            dependencies: ["SImage"]),
+            dependencies: ["SImage"])
     ],
     swiftLanguageVersions: [.v5]
 )

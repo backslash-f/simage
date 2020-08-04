@@ -1,4 +1,4 @@
-import SwiftUI
+import Foundation
 
 /// Holds `Error`s that can be thrown by `SImage` operations.
 public enum SImageError: Error {

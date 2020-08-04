@@ -1,4 +1,4 @@
-import SwiftUI
+import ImageIO
 import Worker
 
 internal extension SImage {
@@ -12,6 +12,8 @@ internal extension SImage {
     /// `CGImage` that represents the result of those operations and an optional `SImageError`.
     func distributeRotatedImagesHorizontally(rotatedImages: [RotatedImage],
                                              completion: @escaping (CGImage?, SImageError?) -> Void) {
+        log("Started distributing rotated images horizontally", category: .horizontalDistributionRotated)
+        log("Number of rotated images: \(rotatedImages.count)", category: .horizontalDistributionRotated)
         let images = rotatedImages.compactMap { $0.image }
         distributeImagesHorizontally(images: images) { image, error in
             guard error == nil else {
@@ -19,9 +21,12 @@ internal extension SImage {
                 return
             }
             guard let image = image else {
-                completion(nil, SImageError.cannotDistributeImagesHorizontally)
+                let error = SImageError.cannotDistributeImagesHorizontally
+                log(error)
+                completion(nil, error)
                 return
             }
+            log("Finished distributing rotated images horizontally", category: .horizontalDistributionRotated)
             completion(image, nil)
         }
     }
@@ -34,8 +39,12 @@ internal extension SImage {
     ///   - completion: Code to be executed after the distribute / draw / make operations finish. Returns an optional
     /// `CGImage` that represents the result of those operations and an optional `SImageError`.
     func distributeImagesHorizontally(images: [CGImage], completion: @escaping (CGImage?, SImageError?) -> Void) {
+        log("Started distributing images horizontally", category: .horizontalDistribution)
+        log("Number of images: \(images.count)", category: .horizontalDistributionRotated)
         guard images.count > 1 else {
-            completion(nil, SImageError.invalidNumberOfImages)
+            let error = SImageError.invalidNumberOfImages
+            log(error)
+            completion(nil, error)
             return
         }
         Worker.doBackgroundWork {
@@ -53,12 +62,17 @@ internal extension SImage {
                     lastWidth = cgImage.width
                 }
                 guard let createdImage = context.makeImage() else {
-                    completion(nil, SImageError.cannotDistributeImagesHorizontally)
+                    let error = SImageError.cannotDistributeImagesHorizontally
+                    log(error)
+                    completion(nil, error)
                     return
                 }
+                log("Finished distributing images horizontally", category: .horizontalDistribution)
                 completion(createdImage, nil)
             } catch {
-                completion(nil, error as? SImageError)
+                let catchedError = (error as? SImageError) ?? SImageError.unknownError(error)
+                log(catchedError)
+                completion(nil, catchedError)
             }
         }
     }

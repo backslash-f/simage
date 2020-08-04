@@ -1,4 +1,5 @@
-import SwiftUI
+import Foundation
+import ImageIO
 
 // MARK: - Interface
 
@@ -11,10 +12,15 @@ public extension SImage {
     /// - Throws: `SImageError.cannotGetImageProperties`
     /// - Returns: `CGImageProperty` for the given `URL`.
     func imageProperties(from url: URL) throws -> CGImageProperty {
+        log("Started fetching CGImageProperty", category: .metadataFetching)
+        log("URL \(url)", category: .metadataFetching)
         guard let source = CGImageSourceCreateWithURL(url as CFURL, nil),
             let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? CGImageProperty else {
-                throw SImageError.cannotGetImageProperties(from: url)
+            let error = SImageError.cannotGetImageProperties(from: url)
+            log(error)
+            throw error
         }
+        log("Finished fetching CGImageProperty", category: .metadataFetching)
         return properties
     }
 
@@ -25,10 +31,15 @@ public extension SImage {
     /// - Throws: `SImageError.cannotGetImageOrientation`
     /// - Returns: `CGImagePropertyOrientation` for the given `URL`.
     func imageOrientation(from url: URL) throws -> CGImagePropertyOrientation {
+        log("Started fetching CGImagePropertyOrientation", category: .metadataFetching)
+        log("URL \(url)", category: .metadataFetching)
         let properties = try imageProperties(from: url)
         guard let orientation = properties.orientation() else {
-            throw SImageError.cannotGetImageOrientation(from: url)
+            let error = SImageError.cannotGetImageOrientation(from: url)
+            log(error)
+            throw error
         }
+        log("Finished fetching CGImagePropertyOrientation", category: .combining)
         return orientation
     }
 
@@ -39,10 +50,15 @@ public extension SImage {
     /// - Throws: `SImageError.cannotGetImageSize`
     /// - Returns: `CGSize` for the given `URL`.
     func imageSize(from url: URL) throws -> CGSize {
+        log("Started fetching image size", category: .metadataFetching)
+        log("URL \(url)", category: .metadataFetching)
         let properties = try imageProperties(from: url)
         guard let size = properties.size() else {
-            throw SImageError.cannotGetImageSize(from: url)
+            let error = SImageError.cannotGetImageSize(from: url)
+            log(error)
+            throw error
         }
+        log("Finished fetching image size", category: .metadataFetching)
         return size
     }
 }

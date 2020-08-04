@@ -1,4 +1,4 @@
-import SwiftUI
+import ImageIO
 
 public extension CGImagePropertyOrientation {
 

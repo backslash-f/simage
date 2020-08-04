@@ -1,4 +1,4 @@
-import SwiftUI
+import ImageIO
 
 internal extension SImage {
 
@@ -9,10 +9,12 @@ internal extension SImage {
     ///   - currentSize: `CGSize` representing the result of the transformation applied to the given size.
     /// - Returns: `CGSize` that is the result of applying the given `CGAffineTransform` to the gizen `CGSize`.
     func size(for transformation: CGAffineTransform, on currentSize: CGSize) -> CGSize {
+        log("Started transforming a CGSize: \(currentSize)", category: .transforming)
         var size = CGRect(origin: CGPoint.zero, size: currentSize).applying(transformation).size
         // Trim off the extremely small Float values to prevent CoreGraphics from rounding it up.
         size.width = floor(size.width)
         size.height = floor(size.height)
+        log("Finished transforming a CGSize. Result: \(size)", category: .transforming)
         return size
     }
 
@@ -35,11 +37,17 @@ internal extension SImage {
     /// - Throws: `SImageError.invalidHeight` in case no image has height > 0.
     /// - Returns: `CGSize` from the `width` and `height` of the given array of `CGImage`.
     func horizontalSize(for images: [CGImage]) throws -> CGSize {
+        log("Started creating a CGSize", category: .creating)
+        log("Number of images: \(images.count)", category: .creating)
         let width = images.map { $0.width }.reduce(0, +)
         guard let height = images.map({ $0.height }).max(),
-            height > 0 else {
-                throw SImageError.invalidHeight
+              height > 0 else {
+            let error = SImageError.invalidHeight
+            log(error)
+            throw error
         }
-        return CGSize(width: width, height: height)
+        let size = CGSize(width: width, height: height)
+        log("Finished creating a CGSize. Result: \(size)", category: .creating)
+        return size
     }
 }
