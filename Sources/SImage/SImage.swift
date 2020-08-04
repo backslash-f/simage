@@ -8,7 +8,12 @@ public struct SImage {
 
     // MARK: - Properties
 
-    var isLoggingEnabled = false
+    /// Set it to `true` in order to see  logging information in Xcode's Console or
+    /// in the macOS Console app.
+    ///
+    /// In the Console app, you can filter SImage's output by `SUBSYSTEM`:
+    /// `com.backslash-f.SImage`.
+    public var isLoggingEnabled = false
 
     // MARK: - Lifecycle
 
