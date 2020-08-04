@@ -34,8 +34,12 @@ public extension SImage {
     func rotateImages(from urls: [URL],
                       settings: SImageSettings,
                       completion: @escaping ([RotatedImage]?, SImageError?) -> Void) {
+        log("Started rotating images from URLs", category: .rotating)
+        log("Number of URLs: \(urls.count)", category: .rotating)
         guard urls.count > 1 else {
-            completion(nil, SImageError.invalidNumberOfImages)
+            let error = SImageError.invalidNumberOfImages
+            log(error)
+            completion(nil, error)
             return
         }
         var rotatedImages = [RotatedImage]()
@@ -63,6 +67,7 @@ public extension SImage {
                     // Define the rotation parameters.
                     let parameters = self.rotationParameters(from: currentOrientation,
                                                              to: settings.rotationTargetOrientation)
+                    log("Rotation angle: \(parameters.rotationAngle)", category: .rotating)
                     let rotationAngle = parameters.rotationAngle
                     let transformation = CGAffineTransform(rotationAngle: CGFloat(rotationAngle))
 
@@ -78,10 +83,12 @@ public extension SImage {
                     let rotatedImage = try self.drawAndMake(rotatedImage: image, context: newContext, size: imageSize)
                     rotatedImages.append(RotatedImage(image: rotatedImage, size: newSize))
                 }
+                log("Finished rotating images from URLs", category: .rotating)
                 completion(rotatedImages, nil)
             } catch {
-                let simageError = (error as? SImageError) ?? SImageError.unknownError(error)
-                completion(nil, simageError)
+                let error = (error as? SImageError) ?? SImageError.unknownError(error)
+                log(error)
+                completion(nil, error)
             }
         }
     }
@@ -164,8 +171,11 @@ private extension SImage {
     ///   middle).
     ///   - rotationAngle: `Float` representing the rotation angle e.g.: 90, 180, etc.
     func rotate(context: inout CGContext, size: CGSize, rotationAngle: Float) {
+        log("Started rotating context", category: .rotating)
+        log("Rotation angle: \(rotationAngle)", category: .rotating)
         context.translateBy(x: size.width/2, y: size.height/2)
         context.rotate(by: CGFloat(rotationAngle))
+        log("Finished rotating context", category: .rotating)
     }
 
     /// Draws (and makes) the given rotated `CGImage` in the given `CGContext` using the given `CGSize`. Returns a
@@ -178,11 +188,16 @@ private extension SImage {
     /// - Throws: `SImageError.cannotRotateImage` in case `CGContext.makeImage()` fails.
     /// - Returns: `CGImage` as a result of the above operations.
     func drawAndMake(rotatedImage image: CGImage, context: CGContext, size: CGSize) throws -> CGImage {
+        log("Started drawing a rotated image", category: .rotating)
+        log("Size: \(size)", category: .rotating)
         let rect = CGRect(x: -size.width/2, y: -size.height/2, width: size.width, height: size.height)
         context.draw(image, in: rect)
         guard let resultImage = context.makeImage() else {
-            throw SImageError.cannotRotateImage
+            let error = SImageError.cannotRotateImage
+            log(error)
+            throw error
         }
+        log("Finished drawing a rotated image", category: .rotating)
         return resultImage
     }
 
@@ -193,6 +208,8 @@ private extension SImage {
     ///   - parameters: `RotationParameters` that defines if an image should be horizontally or vertically flipped.
     ///   - context: `CGContext` in which a `CGAffineTransform` may be applied.
     func handleMirroredImages(with parameters: RotationParameters, context: inout CGContext) {
+        log("Started handling mirrored images", category: .rotating)
+        log("Rotation parameters: \(parameters)", category: .rotating)
         if parameters.flipHorizontally {
             let flipHorizontal = CGAffineTransform(a: -1, b: 0, c: 0, d: 1, tx: 0, ty: 0)
             context.concatenate(flipHorizontal)
@@ -201,5 +218,6 @@ private extension SImage {
             let flipVertical = CGAffineTransform(a: 1, b: 0, c: 0, d: -1, tx: 0, ty: 0)
             context.concatenate(flipVertical)
         }
+        log("Finished handling mirrored images", category: .rotating)
     }
 }

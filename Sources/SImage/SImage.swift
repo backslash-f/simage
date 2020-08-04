@@ -5,6 +5,13 @@ import Worker
 /// Wrapper around `Core Graphics` that can provide functionalities such as image combination, image rotation, etc.
 /// Because it relies on Core Graphics, it's multi-platform. It can run in macOS, iOS, iPadOS, tvOS, watchOS.
 public struct SImage {
+
+    // MARK: - Properties
+
+    var isLoggingEnabled = false
+
+    // MARK: - Lifecycle
+
     public init() {}
 }
 
@@ -26,8 +33,12 @@ public extension SImage {
     func combine(images: [CGImage],
                  settings: SImageSettings = SImageSettings(),
                  completion: @escaping (CGImage?, SImageError?) -> Void) {
+        log("Started combining images", category: .combining)
+        log("Number of images: \(images.count)", category: .combining)
         guard images.count > 1 else {
-            completion(nil, SImageError.invalidNumberOfImages)
+            let error = SImageError.invalidNumberOfImages
+            log(error)
+            completion(nil, error)
             return
         }
         distributeImagesHorizontally(images: images) { result, error in
@@ -35,6 +46,7 @@ public extension SImage {
                 completion(nil, error ?? SImageError.unknownError(error))
                 return
             }
+            log("Finished combining images", category: .combining)
             completion(finalImage, nil)
         }
     }
@@ -52,9 +64,11 @@ public extension SImage {
     func combineImages(from urls: [URL],
                        settings: SImageSettings = SImageSettings(),
                        completion: @escaping (CGImage?, SImageError?) -> Void) {
+        log("Started combining images from URLs", category: .combining)
+        log("Number of URLs: \(urls.count)", category: .combining)
         rotateImages(from: urls, settings: settings) { result, error in
             guard let rotatedImages = result else {
-                completion(nil, error)
+                completion(nil, error ?? SImageError.unknownError(error))
                 return
             }
             self.distributeRotatedImagesHorizontally(rotatedImages: rotatedImages) { result, error in
@@ -62,6 +76,7 @@ public extension SImage {
                     completion(nil, error ?? SImageError.unknownError(error))
                     return
                 }
+                log("Finished combining images from URLs", category: .combining)
                 completion(finalImage, nil)
             }
         }
@@ -76,6 +91,7 @@ public extension SImage {
     /// - Throws: `SImageError.cannotCreateContext` if the `CGContext` couldn't be created.
     /// - Returns: `CGContext` based on the given `CGSize` and `SImageSettings`.
     func context(for size: CGSize, settings: SImageSettings = SImageSettings()) throws -> CGContext {
+        log("Started creating a CGContext", category: .creating)
         guard let newContext = CGContext(
             data: nil,
             width: Int(size.width.magnitude),
@@ -84,9 +100,12 @@ public extension SImage {
             bytesPerRow: settings.contextBytesPerRow,
             space: settings.contextColorSpace,
             bitmapInfo: settings.contextBitmapInfo
-            ) else {
-                throw SImageError.cannotCreateContext
+        ) else {
+            let error = SImageError.cannotCreateContext
+            log(error)
+            throw error
         }
+        log("Finished creating a CGContext. Result: \(newContext)", category: .creating)
         return newContext
     }
 
@@ -99,13 +118,27 @@ public extension SImage {
     /// `SImageError.cannotBeCalledFromMainThread` in case this function is running in the main thread.
     /// - Returns: `CGImage` created from the given `URL`.
     func createImage(from url: URL) throws -> CGImage {
+        log("Started creating CGImage", category: .creating)
         guard !Thread.isMainThread else {
-            throw SImageError.cannotBeCalledFromMainThread
+            let error = SImageError.cannotBeCalledFromMainThread
+            log(error)
+            throw error
         }
-        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil),
-            let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else {
-                throw SImageError.cannotCreateImage(from: url)
+        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else {
+            log("Could not create the CGImage. CGImageSourceCreateWithURL returned nil",
+                category: .creating)
+            let error = SImageError.cannotCreateImage(from: url)
+            log(error)
+            throw error
         }
+        guard let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else {
+            log("Could not create the CGImage. CGImageSourceCreateImageAtIndex returned nil",
+                category: .creating)
+            let error = SImageError.cannotCreateImage(from: url)
+            log(error)
+            throw error
+        }
+        log("Finished creating CGImage. Result: \(image)", category: .creating)
         return image
     }
 
@@ -120,19 +153,31 @@ public extension SImage {
     func createThumbnail(from url: URL,
                          settings: SImageSettings = SImageSettings(),
                          completion: @escaping (CGImage?) -> Void) {
+        log("Started creating thumbnail", category: .thumbnail)
+        log("Source URL: \(url)", category: .thumbnail)
         let options = createThumbnailOptions(with: settings)
+        log("Settings: \(settings)", category: .thumbnail)
         Worker.doBackgroundWork {
-            guard let source = CGImageSourceCreateWithURL(url as CFURL, options),
-                let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options) else {
-                    completion(nil)
-                    return
+            guard let source = CGImageSourceCreateWithURL(url as CFURL, options) else {
+                log("Could not create the thumbnail. CGImageSourceCreateWithURL returned nil",
+                    category: .thumbnail)
+                completion(nil)
+                return
             }
+            guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options) else {
+                log("Could not create the thumbnail. CGImageSourceCreateThumbnailAtIndex returnd nil",
+                    category: .thumbnail)
+                completion(nil)
+                return
+            }
+            log("Finished creating thumbnail", category: .thumbnail)
             completion(cgImage)
         }
     }
 
-    /// Saves the given `CGImage` as `SImage.png` in the `userDirectory` (by default). The default options can be
-    /// overridden by passing in a custom `SImageSettings` instance.
+    /// Saves the given `CGImage` as `SImage.png` in the `userDirectory` (by default).
+    ///
+    /// The default options can be overridden by passing in a custom `SImageSettings` instance.
     ///
     /// - Parameters:
     ///   - image: `CGImage` to be saved.
@@ -142,18 +187,22 @@ public extension SImage {
     func save(image: CGImage,
               settings: SImageSettings = SImageSettings(),
               completion: @escaping (URL?, SImageError?) -> Void) {
-
+        log("Started saving image", category: .saving)
+        log("Settings: \(settings)", category: .saving)
         guard let imgDestination = imageDestination(settings: settings) else {
-            completion(nil, .cannotSaveImage)
+            let error = SImageError.cannotSaveImage
+            log(error)
+            completion(nil, error)
             return
         }
-
         CGImageDestinationAddImage(imgDestination, image, nil)
         guard CGImageDestinationFinalize(imgDestination) else {
-            completion(nil, .cannotSaveImage)
+            let error = SImageError.cannotSaveImage
+            log(error)
+            completion(nil, error)
             return
         }
-
+        log("Finished saving image", category: .saving)
         completion(settings.saveDestinationURL, nil)
     }
 }
