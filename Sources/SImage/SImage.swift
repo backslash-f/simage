@@ -180,7 +180,7 @@ public extension SImage {
                 return
             }
             guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options) else {
-                log("Could not create the thumbnail. CGImageSourceCreateThumbnailAtIndex returnd nil",
+                log("Could not create the thumbnail. CGImageSourceCreateThumbnailAtIndex returned nil",
                     category: .thumbnail)
                 completion(nil)
                 return

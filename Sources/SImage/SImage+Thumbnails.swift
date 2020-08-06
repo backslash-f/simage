@@ -10,6 +10,7 @@ internal extension SImage {
     func createThumbnailOptions(with settings: SImageSettings) -> CFDictionary {
         log("Started creating thumbnail options with settings: \(settings)", category: .thumbnail)
         var thumbnailOptions: [CFString: Any] = [
+            kCGImageSourceShouldCache: false,
             kCGImageSourceShouldAllowFloat: settings.thumbsShouldAllowFloat,
             kCGImageSourceCreateThumbnailWithTransform: settings.thumbsShouldRotateAndScale,
             kCGImageSourceCreateThumbnailFromImageAlways: settings.thumbsAlwaysFromImage
