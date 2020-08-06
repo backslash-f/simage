@@ -20,7 +20,7 @@ public extension SImage {
             log(error)
             throw error
         }
-        log("Finished fetching CGImageProperty", category: .metadataFetching)
+        log("Finished fetching CGImageProperty: \(properties)", category: .metadataFetching)
         return properties
     }
 
@@ -39,7 +39,7 @@ public extension SImage {
             log(error)
             throw error
         }
-        log("Finished fetching CGImagePropertyOrientation", category: .combining)
+        log("Finished fetching CGImagePropertyOrientation: \(orientation)", category: .combining)
         return orientation
     }
 
@@ -58,7 +58,7 @@ public extension SImage {
             log(error)
             throw error
         }
-        log("Finished fetching image size", category: .metadataFetching)
+        log("Finished fetching image size: \(size)", category: .metadataFetching)
         return size
     }
 }
