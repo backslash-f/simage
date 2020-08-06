@@ -47,13 +47,13 @@ public extension SImage {
             do {
                 for url in urls {
                     // Create image.
-                    let image = try self.createImage(from: url)
+                    let image = try self.createImage(from: url, with: settings)
 
                     /// Extract its metadata.
-                    let imageSize = try self.imageSize(from: url)
+                    let imageSize = try self.imageSize(from: url, with: settings)
                     let imageOrientation = settings.rotationIgnoreMissingMetadata ?
-                        try? self.imageOrientation(from: url) : // Orientation may be nil.
-                        try self.imageOrientation(from: url)    // Function may throw.
+                        try? self.imageOrientation(from: url, with: settings) : // Orientation may be nil.
+                        try self.imageOrientation(from: url, with: settings)    // Function may throw.
 
                     // Determine if the image needs to be rotated.
                     guard let currentOrientation = imageOrientation,

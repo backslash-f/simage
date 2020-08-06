@@ -11,6 +11,7 @@ internal extension SImage {
         log("Started creating thumbnail options with settings: \(settings)", category: .thumbnail)
         var thumbnailOptions: [CFString: Any] = [
             kCGImageSourceShouldAllowFloat: settings.thumbsShouldAllowFloat,
+            kCGImageSourceShouldCache: settings.thumbsSourceShouldCache,
             kCGImageSourceCreateThumbnailWithTransform: settings.thumbsShouldRotateAndScale,
             kCGImageSourceCreateThumbnailFromImageAlways: settings.thumbsAlwaysFromImage
         ]

@@ -126,33 +126,22 @@ public extension SImage {
 
     /// Creates a `CGImage` from the given `URL`.
     ///
-    /// This function must be called from the main thread (to avoid possible performance issues).
+    /// This function must **not** be called from the main thread (to avoid possible performance issues).
     ///
-    /// - Parameter url: `URL` where an image resided.
-    /// - Throws: `SImageError.cannotCreateImage` in case `CGImageSourceCreateImageAtIndex` returns `nil`.
-    /// `SImageError.cannotBeCalledFromMainThread` in case this function is running in the main thread.
-    /// - Returns: `CGImage` created from the given `URL`.
-    func createImage(from url: URL) throws -> CGImage {
+    /// - Parameters:
+    ///   - url: `URL` where an image resides.
+    ///   - settings: `SImageSettings` from where the `CGImageSource` creation options will be based on.
+    /// - Throws: `SImageError.cannotCreateImage(from:)` in case the creation fails.
+    /// - Returns: `CGImage`
+    func createImage(from url: URL, with settings: SImageSettings) throws -> CGImage {
         log("Started creating CGImage", category: .creating)
         guard !Thread.isMainThread else {
             let error = SImageError.cannotBeCalledFromMainThread
             log(error)
             throw error
         }
-        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else {
-            log("Could not create the CGImage. CGImageSourceCreateWithURL returned nil",
-                category: .creating)
-            let error = SImageError.cannotCreateImage(from: url)
-            log(error)
-            throw error
-        }
-        guard let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else {
-            log("Could not create the CGImage. CGImageSourceCreateImageAtIndex returned nil",
-                category: .creating)
-            let error = SImageError.cannotCreateImage(from: url)
-            log(error)
-            throw error
-        }
+        let imageSource = try createImageSource(from: url, with: settings)
+        let image = try createImage(from: url, imageSource: imageSource, with: settings)
         log("Finished creating CGImage. Result: \(image)", category: .creating)
         return image
     }
@@ -170,23 +159,16 @@ public extension SImage {
                          completion: @escaping (CGImage?) -> Void) {
         log("Started creating thumbnail", category: .thumbnail)
         log("Source URL: \(url)", category: .thumbnail)
-        let options = createThumbnailOptions(with: settings)
-        log("Settings: \(settings)", category: .thumbnail)
         Worker.doBackgroundWork {
-            guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else {
-                log("Could not create the thumbnail. CGImageSourceCreateWithURL returned nil",
-                    category: .thumbnail)
+            do {
+                let imageSource = try createImageSource(from: url, with:settings)
+                let cgImage = try createImage(from: url, imageSource: imageSource, with: settings)
+                log("Finished creating thumbnail", category: .thumbnail)
+                completion(cgImage)
+            } catch {
                 completion(nil)
                 return
             }
-            guard let cgImage = CGImageSourceCreateThumbnailAtIndex(source, 0, options) else {
-                log("Could not create the thumbnail. CGImageSourceCreateThumbnailAtIndex returned nil",
-                    category: .thumbnail)
-                completion(nil)
-                return
-            }
-            log("Finished creating thumbnail", category: .thumbnail)
-            completion(cgImage)
         }
     }
 

@@ -28,9 +28,15 @@ public struct SImageSettings {
     private(set) var contextColorSpace: CGColorSpace
     private(set) var contextBitmapInfo: UInt32
 
+    // MARK: Image Source Creation
+
+    private(set) var imgSourceShouldAllowFloat: Bool
+    private(set) var imgSourceShouldCache: Bool
+
     // MARK: Thumbnail Creation
 
     private(set) var thumbsShouldAllowFloat: Bool
+    private(set) var thumbsSourceShouldCache: Bool
     private(set) var thumbsShouldRotateAndScale: Bool
     private(set) var thumbsAlwaysFromImage: Bool
     private(set) var thumbsMaxPixelSize: String?
@@ -69,9 +75,15 @@ public struct SImageSettings {
     ///   a new `CGContext`, the alpha channel’s relative location in a pixel, and information about whether the pixel
     ///   components are floating-point or integer values. Default is `CGImageAlphaInfo.premultipliedLast.rawValue`.
     ///
+    ///   - imgSourceShouldAllowFloat: Whether the thumbnail image should be returned as a `CGImage` object that uses
+    ///   floating-point values, if supported by the file format. `CGImage` objects that use extended-range
+    ///   floating-point values may require additional processing to render in a pleasing manner. The default is `true`.
+    ///   - imgSourceShouldCache: Whether the image should be cached in a decoded form. The default is `false`.
+    ///
     ///   - thumbsShouldAllowFloat: Whether the thumbnail image should be returned as a `CGImage` object that uses
     ///   floating-point values, if supported by the file format. `CGImage` objects that use extended-range
     ///   floating-point values may require additional processing to render in a pleasing manner. The default is `true`.
+    ///   - thumbsSourceShouldCache: Whether the image should be cached in a decoded form. The default is `false`.
     ///   - thumbsShouldRotateAndScale: Whether the thumbnail should be rotated and scaled according to the orientation
     ///   and pixel aspect ratio of the full image. The default is `true`.
     ///   - thumbsAlwaysFromImage: Whether a thumbnail should be created from the full image even if a thumbnail is
@@ -91,7 +103,10 @@ public struct SImageSettings {
                 contextBytesPerRow: Int = 0,
                 contextColorSpace: CGColorSpace = CGColorSpaceCreateDeviceRGB(),
                 contextBitmapInfo: UInt32 = CGImageAlphaInfo.premultipliedLast.rawValue,
+                imgSourceShouldAllowFloat: Bool = true,
+                imgSourceShouldCache: Bool = false,
                 thumbsShouldAllowFloat: Bool = true,
+                thumbsSourceShouldCache: Bool = false,
                 thumbsShouldRotateAndScale: Bool = true,
                 thumbsAlwaysFromImage: Bool = true,
                 thumbsMaxPixelSize: String? = nil,
@@ -107,7 +122,11 @@ public struct SImageSettings {
         self.contextColorSpace = contextColorSpace
         self.contextBitmapInfo = contextBitmapInfo
 
+        self.imgSourceShouldAllowFloat = imgSourceShouldAllowFloat
+        self.imgSourceShouldCache = imgSourceShouldCache
+
         self.thumbsShouldAllowFloat = thumbsShouldAllowFloat
+        self.thumbsSourceShouldCache = thumbsSourceShouldCache
         self.thumbsShouldRotateAndScale = thumbsShouldRotateAndScale
         self.thumbsAlwaysFromImage = thumbsAlwaysFromImage
         self.thumbsMaxPixelSize = thumbsMaxPixelSize
