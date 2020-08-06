@@ -173,7 +173,7 @@ public extension SImage {
         let options = createThumbnailOptions(with: settings)
         log("Settings: \(settings)", category: .thumbnail)
         Worker.doBackgroundWork {
-            guard let source = CGImageSourceCreateWithURL(url as CFURL, options) else {
+            guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else {
                 log("Could not create the thumbnail. CGImageSourceCreateWithURL returned nil",
                     category: .thumbnail)
                 completion(nil)
