@@ -77,7 +77,7 @@ public struct SImageSettings {
     ///   - imageSourceShouldAllowFloat: Whether the image should be returned as a `CGImage` object that uses
     ///   floating-point values, if supported by the file format. `CGImage` objects that use extended-range
     ///   floating-point values may require additional processing to render in a pleasing manner. The default is `true`.
-    ///   - imageSourceShouldCache: Whether the image should be cached in a decoded form. The default is `false`.
+    ///   - imageSourceShouldCache: Whether the image should be cached in a decoded form. The default is `true`.
     ///   - imageSourceCreateThumbnailWithTransform: Whether the image should be rotated and scaled according to
     ///   the orientation and pixel aspect ratio of the full image. The default is `true`.
     ///   - imageSourceCreateThumbnailFromImageAlways: Whether a thumbnail should be created from the full image
@@ -98,7 +98,7 @@ public struct SImageSettings {
                 contextColorSpace: CGColorSpace = CGColorSpaceCreateDeviceRGB(),
                 contextBitmapInfo: UInt32 = CGImageAlphaInfo.premultipliedLast.rawValue,
                 imageSourceShouldAllowFloat: Bool = true,
-                imageSourceShouldCache: Bool = false,
+                imageSourceShouldCache: Bool = true,
                 imageSourceCreateThumbnailWithTransform: Bool = true,
                 imageSourceCreateThumbnailFromImageAlways: Bool = true,
                 imageSourceThumbnailMaxPixelSize: String? = nil,

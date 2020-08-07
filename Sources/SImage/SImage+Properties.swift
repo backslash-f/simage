@@ -17,7 +17,8 @@ public extension SImage {
         log("Started fetching CGImageProperty", category: .metadataFetching)
         log("URL \(url)", category: .metadataFetching)
         let source = try createImageSource(from: url, with: settings)
-        guard let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? CGImageProperty else {
+        let options = createImageSourceOptions(with: settings)
+        guard let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, options) as? CGImageProperty else {
             let error = SImageError.cannotGetImageProperties(from: url)
             log(error)
             throw error

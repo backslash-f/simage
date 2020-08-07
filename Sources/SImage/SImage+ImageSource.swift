@@ -42,11 +42,6 @@ internal extension SImage {
         log("Finished creating image from source. Result: \(image)", category: .creating)
         return image
     }
-}
-
-// MARK: - Private
-
-private extension SImage {
 
     /// Creates a `CGImageSource` creation options to be used with `SImage.createImageSource(from:with:)`,
     /// based on the given `SImageSettings`.
