@@ -7,12 +7,19 @@ internal extension SImage {
     ///
     /// - Parameters:
     ///   - url: `URL` where an image resides.
-    ///   - settings: `SImageSettings` from where the `CGImageSource` creation options will be based on.
+    ///   - settings: Optional `SImageSettings` from where the `CGImageSource` creation options will be based on.
     /// - Throws: `SImageError.cannotCreateImage(from:)` in case the creation fails.
     /// - Returns: `CGImageSource`.
-    func createImageSource(from url: URL, with settings: SImageSettings) throws -> CGImageSource {
+    func createImageSource(from url: URL, with settings: SImageSettings? = nil) throws -> CGImageSource {
         log("Started creating image source", category: .creating)
-        let options = createImageSourceOptions(with: settings)
+
+        let options: CFDictionary?
+        if let givenSettings = settings {
+            options = createImageSourceOptions(with: givenSettings)
+        } else {
+            options = nil
+        }
+
         guard let source = CGImageSourceCreateWithURL(url as CFURL, options) else {
             log("Could not create the CGImageSource. CGImageSourceCreateWithURL returned nil", category: .creating)
             let error = SImageError.cannotCreateImage(from: url)
@@ -27,12 +34,19 @@ internal extension SImage {
     ///
     /// - Parameters:
     ///   - url: `URL` where an image resides.
-    ///   - settings: `SImageSettings` from where the `CGImage` creation options will be based on.
+    ///   - settings: Optional `SImageSettings` from where the `CGImage` creation options will be based on.
     /// - Throws: `SImageError.cannotCreateImage(from:)` in case the creation fails.
     /// - Returns: `CGImage`.
-    func createImage(from url: URL, imageSource: CGImageSource, with settings: SImageSettings) throws -> CGImage {
+    func createImage(from url: URL, imageSource: CGImageSource, with settings: SImageSettings? = nil) throws -> CGImage {
         log("Started creating image from source: \(imageSource)", category: .creating)
-        let options = createImageSourceOptions(with: settings)
+
+        let options: CFDictionary?
+        if let givenSettings = settings {
+            options = createImageSourceOptions(with: givenSettings)
+        } else {
+            options = nil
+        }
+
         guard let image = CGImageSourceCreateImageAtIndex(imageSource, 0, options) else {
             log("Could not create the CGImage. CGImageSourceCreateImageAtIndex returned nil", category: .creating)
             let error = SImageError.cannotCreateImage(from: url)

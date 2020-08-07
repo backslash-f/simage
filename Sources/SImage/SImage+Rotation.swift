@@ -47,7 +47,7 @@ public extension SImage {
             do {
                 for url in urls {
                     // Create image.
-                    let image = try self.createImage(from: url, with: settings)
+                    let image = try self.createImage(from: url)
 
                     /// Extract its metadata.
                     let imageSize = try self.imageSize(from: url, with: settings)

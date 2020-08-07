@@ -130,10 +130,10 @@ public extension SImage {
     ///
     /// - Parameters:
     ///   - url: `URL` where an image resides.
-    ///   - settings: `SImageSettings` from where the `CGImageSource` creation options will be based on.
+    ///   - settings: Optional `SImageSettings` from where the `CGImageSource` creation options will be based on.
     /// - Throws: `SImageError.cannotCreateImage(from:)` in case the creation fails.
     /// - Returns: `CGImage`
-    func createImage(from url: URL, with settings: SImageSettings) throws -> CGImage {
+    func createImage(from url: URL, with settings: SImageSettings? = nil) throws -> CGImage {
         log("Started creating CGImage", category: .creating)
         guard !Thread.isMainThread else {
             let error = SImageError.cannotBeCalledFromMainThread

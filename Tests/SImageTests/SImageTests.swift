@@ -319,7 +319,7 @@ private extension SImageTests {
 
     /// Retrieves a random `CGImage`.
     func randomImage() -> CGImage? {
-        return try? SImage().createImage(from: randomImageURL(), with: SImageSettings())
+        return try? SImage().createImage(from: randomImageURL())
     }
 
     /// Retrieves a random image URL as in, for example, the URL for "image_7". Return it as an `URL`.
