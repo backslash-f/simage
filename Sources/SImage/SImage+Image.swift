@@ -27,7 +27,7 @@ internal extension SImage {
     ///
     /// - Parameters:
     ///   - url: `URL` where an image resides.
-    ///   - settings: `SImageSettings` from where the `CGImageSource` creation options will be based on.
+    ///   - settings: `SImageSettings` from where the `CGImage` creation options will be based on.
     /// - Throws: `SImageError.cannotCreateImage(from:)` in case the creation fails.
     /// - Returns: `CGImage`.
     func createImage(from url: URL, imageSource: CGImageSource, with settings: SImageSettings) throws -> CGImage {
@@ -55,10 +55,15 @@ private extension SImage {
     /// - Returns: `CGImageSource` creation  options as `CFDictionary`.
     func createImageSourceOptions(with settings: SImageSettings) -> CFDictionary {
         log("Started creating CGImageSource options with settings: \(settings)", category: .creating)
-        let imageSourceOptions: [CFString: Any] = [
-            kCGImageSourceShouldAllowFloat: settings.imgSourceShouldAllowFloat,
-            kCGImageSourceShouldCache: settings.imgSourceShouldCache,
+        var imageSourceOptions: [CFString: Any] = [
+            kCGImageSourceShouldAllowFloat: settings.imageSourceShouldAllowFloat,
+            kCGImageSourceShouldCache: settings.imageSourceShouldCache,
+            kCGImageSourceCreateThumbnailWithTransform: settings.imageSourceCreateThumbnailWithTransform,
+            kCGImageSourceCreateThumbnailFromImageAlways: settings.imageSourceCreateThumbnailFromImageAlways
         ]
+        if let imageSourceThumbnailMaxPixelSize = settings.imageSourceThumbnailMaxPixelSize {
+            imageSourceOptions[kCGImageSourceThumbnailMaxPixelSize] = imageSourceThumbnailMaxPixelSize
+        }
         log("Finished creating CGImageSource options. Result: \(imageSourceOptions)", category: .creating)
         return imageSourceOptions as CFDictionary
     }

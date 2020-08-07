@@ -30,16 +30,11 @@ public struct SImageSettings {
 
     // MARK: Image Source Creation
 
-    private(set) var imgSourceShouldAllowFloat: Bool
-    private(set) var imgSourceShouldCache: Bool
-
-    // MARK: Thumbnail Creation
-
-    private(set) var thumbsShouldAllowFloat: Bool
-    private(set) var thumbsSourceShouldCache: Bool
-    private(set) var thumbsShouldRotateAndScale: Bool
-    private(set) var thumbsAlwaysFromImage: Bool
-    private(set) var thumbsMaxPixelSize: String?
+    private(set) var imageSourceShouldAllowFloat: Bool
+    private(set) var imageSourceShouldCache: Bool
+    private(set) var imageSourceCreateThumbnailWithTransform: Bool
+    private(set) var imageSourceCreateThumbnailFromImageAlways: Bool
+    private(set) var imageSourceThumbnailMaxPixelSize: String?
 
     // MARK: - Save Image
 
@@ -55,11 +50,15 @@ public struct SImageSettings {
     /// For an example of how to specify the `contextColorSpace`, `contextBytesPerRow`, `contextBitsPerComponent`, and
     /// `contextBitmapInfo`, see [Graphics Contexts](https://apple.co/34YaDZJ).
     ///
+    /// Notice: the "imageSource" parameters are to be used internally with the `CGImageSourceCreateWithURL`,
+    /// `CGImageSourceCreateImageAtIndex` and `CGImageSourceCopyPropertiesAtIndex` APIs.
+    ///
     /// - Parameters:
     ///   - rotationTargetOrientation: In a rotation operation, defines the desired orientation for an image. Default is
     ///   `.up`.
     ///   - rotationIgnoreMissingMetadata: Some images may not have rotation information in its metadata. When
-    ///   `SImage.rotateImages(in:settings:completion:)` encounters those type of images, it may throw (`SImageError.cannotGetImageOrientation(from:)`). If you want to ignore missing rotation information and just
+    ///   `SImage.rotateImages(in:settings:completion:)` encounters those type of images, it may throw
+    ///   (`SImageError.cannotGetImageOrientation(from:)`). If you want to ignore missing rotation information and just
     ///   proceed to the next image, set this property to `true`. If you want to stop the rotation operation when there
     ///   is no rotation information available, set it to `false`. The default is `true` (missing rotation information
     ///   is ignored. **Notice that the image itself won't be skipped -- it will be included in the result image, but
@@ -75,21 +74,16 @@ public struct SImageSettings {
     ///   a new `CGContext`, the alpha channel’s relative location in a pixel, and information about whether the pixel
     ///   components are floating-point or integer values. Default is `CGImageAlphaInfo.premultipliedLast.rawValue`.
     ///
-    ///   - imgSourceShouldAllowFloat: Whether the thumbnail image should be returned as a `CGImage` object that uses
+    ///   - imageSourceShouldAllowFloat: Whether the image should be returned as a `CGImage` object that uses
     ///   floating-point values, if supported by the file format. `CGImage` objects that use extended-range
     ///   floating-point values may require additional processing to render in a pleasing manner. The default is `true`.
-    ///   - imgSourceShouldCache: Whether the image should be cached in a decoded form. The default is `false`.
-    ///
-    ///   - thumbsShouldAllowFloat: Whether the thumbnail image should be returned as a `CGImage` object that uses
-    ///   floating-point values, if supported by the file format. `CGImage` objects that use extended-range
-    ///   floating-point values may require additional processing to render in a pleasing manner. The default is `true`.
-    ///   - thumbsSourceShouldCache: Whether the image should be cached in a decoded form. The default is `false`.
-    ///   - thumbsShouldRotateAndScale: Whether the thumbnail should be rotated and scaled according to the orientation
-    ///   and pixel aspect ratio of the full image. The default is `true`.
-    ///   - thumbsAlwaysFromImage: Whether a thumbnail should be created from the full image even if a thumbnail is
-    ///   present in the image source file. The thumbnail is created from the full image, subject to the limit specified
+    ///   - imageSourceShouldCache: Whether the image should be cached in a decoded form. The default is `false`.
+    ///   - imageSourceCreateThumbnailWithTransform: Whether the image should be rotated and scaled according to
+    ///   the orientation and pixel aspect ratio of the full image. The default is `true`.
+    ///   - imageSourceCreateThumbnailFromImageAlways: Whether a thumbnail should be created from the full image
+    ///   even if a thumbnail is present in the image source file. The thumbnail is created from the full image, subject to the limit specified
     ///   by `maxPixelSize`. The default is `true`.
-    ///   - thumbsMaxPixelSize: An optional maximum width or height in pixels of a thumbnail. The default is `nil`.
+    ///   - imageSourceThumbnailMaxPixelSize: An optional maximum width or height in pixels of a thumbnail. The default is `nil`.
     ///
     ///   - saveFilename: The image filename. The default is `SImageSettings.defaultImageFilename`. If overridden,
     ///   the **file type** must be also provided. For example: "*MyDesiredName.png*".
@@ -103,13 +97,11 @@ public struct SImageSettings {
                 contextBytesPerRow: Int = 0,
                 contextColorSpace: CGColorSpace = CGColorSpaceCreateDeviceRGB(),
                 contextBitmapInfo: UInt32 = CGImageAlphaInfo.premultipliedLast.rawValue,
-                imgSourceShouldAllowFloat: Bool = true,
-                imgSourceShouldCache: Bool = false,
-                thumbsShouldAllowFloat: Bool = true,
-                thumbsSourceShouldCache: Bool = false,
-                thumbsShouldRotateAndScale: Bool = true,
-                thumbsAlwaysFromImage: Bool = true,
-                thumbsMaxPixelSize: String? = nil,
+                imageSourceShouldAllowFloat: Bool = true,
+                imageSourceShouldCache: Bool = false,
+                imageSourceCreateThumbnailWithTransform: Bool = true,
+                imageSourceCreateThumbnailFromImageAlways: Bool = true,
+                imageSourceThumbnailMaxPixelSize: String? = nil,
                 saveFilename: String = SImageSettings.defaultImageFilename,
                 saveDestinationURL: URL = FileManager.default.temporaryDirectory,
                 saveImageType: CFString = kUTTypePNG) {
@@ -122,14 +114,11 @@ public struct SImageSettings {
         self.contextColorSpace = contextColorSpace
         self.contextBitmapInfo = contextBitmapInfo
 
-        self.imgSourceShouldAllowFloat = imgSourceShouldAllowFloat
-        self.imgSourceShouldCache = imgSourceShouldCache
-
-        self.thumbsShouldAllowFloat = thumbsShouldAllowFloat
-        self.thumbsSourceShouldCache = thumbsSourceShouldCache
-        self.thumbsShouldRotateAndScale = thumbsShouldRotateAndScale
-        self.thumbsAlwaysFromImage = thumbsAlwaysFromImage
-        self.thumbsMaxPixelSize = thumbsMaxPixelSize
+        self.imageSourceShouldAllowFloat = imageSourceShouldAllowFloat
+        self.imageSourceShouldCache = imageSourceShouldCache
+        self.imageSourceCreateThumbnailWithTransform = imageSourceCreateThumbnailWithTransform
+        self.imageSourceCreateThumbnailFromImageAlways = imageSourceCreateThumbnailFromImageAlways
+        self.imageSourceThumbnailMaxPixelSize = imageSourceThumbnailMaxPixelSize
 
         self.saveFilename = saveFilename
         self.saveDestinationURL = saveDestinationURL.appendingPathComponent(saveFilename)

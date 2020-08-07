@@ -161,7 +161,7 @@ public extension SImage {
         log("Source URL: \(url)", category: .thumbnail)
         Worker.doBackgroundWork {
             do {
-                let imageSource = try createImageSource(from: url, with:settings)
+                let imageSource = try createImageSource(from: url, with: settings)
                 let cgImage = try createImage(from: url, imageSource: imageSource, with: settings)
                 log("Finished creating thumbnail", category: .thumbnail)
                 completion(cgImage)
