@@ -50,10 +50,10 @@ public extension SImage {
                     let image = try self.createImage(from: url)
 
                     /// Extract its metadata.
-                    let imageSize = try self.imageSize(from: url, with: settings)
+                    let imageSize = try self.imageSize(from: url)
                     let imageOrientation = settings.rotationIgnoreMissingMetadata ?
-                        try? self.imageOrientation(from: url, with: settings) : // Orientation may be nil.
-                        try self.imageOrientation(from: url, with: settings)    // Function may throw.
+                        try? self.imageOrientation(from: url) : // Orientation may be nil.
+                        try self.imageOrientation(from: url)    // Function may throw.
 
                     // Determine if the image needs to be rotated.
                     guard let currentOrientation = imageOrientation,
