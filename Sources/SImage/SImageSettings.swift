@@ -50,8 +50,8 @@ public struct SImageSettings {
     /// For an example of how to specify the `contextColorSpace`, `contextBytesPerRow`, `contextBitsPerComponent`, and
     /// `contextBitmapInfo`, see [Graphics Contexts](https://apple.co/34YaDZJ).
     ///
-    /// Notice: the "imageSource" parameters are to be used internally with the `CGImageSourceCreateWithURL`,
-    /// `CGImageSourceCreateImageAtIndex` and `CGImageSourceCopyPropertiesAtIndex` APIs.
+    /// Notice: the "imageSource" parameters are to be used internally with the `CGImageSourceCreateWithURL` and the
+    /// `CGImageSourceCreateImageAtIndex` APIs.
     ///
     /// - Parameters:
     ///   - rotationTargetOrientation: In a rotation operation, defines the desired orientation for an image. Default is
