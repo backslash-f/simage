@@ -25,7 +25,9 @@ let package = Package(
             dependencies: ["Worker", "AppLogger"]),
         .testTarget(
             name: "SImageTests",
-            dependencies: ["SImage"])
+            dependencies: ["SImage"],
+            resources: [.process("Resources")]
+        )
     ],
     swiftLanguageVersions: [.v5]
 )
